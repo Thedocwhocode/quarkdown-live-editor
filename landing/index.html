@@ -1,0 +1,977 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quark Notes — Write in Quarkdown</title>
+  <meta name="description" content="A Quarkdown-native note editor. Write with the power of a typesetting system, as naturally as a notepad. Offline-first, cross-platform, beautifully designed.">
+  <meta property="og:title" content="Quark Notes — Write in Quarkdown">
+  <meta property="og:description" content="The only note editor built natively for Quarkdown. Math, diagrams, slides, and paged documents — all from your notes.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Lora:ital,wght@0,400;0,600;1,400;1,600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    /* ── Tokens ───────────────────────────────────────────────────────────────── */
+    :root {
+      --bg:          #081818;
+      --bg-2:        #0c1f1f;
+      --bg-3:        #102828;
+      --card:        #132828;
+      --border:      #1c3838;
+      --border-sub:  #142828;
+      --accent:      #4ecdc4;
+      --accent-dim:  rgba(78,205,196,0.12);
+      --accent-glow: rgba(78,205,196,0.22);
+      --coral:       #ff6b6b;
+      --gold:        #ffd166;
+      --text:        #dff0f0;
+      --text-muted:  #7aadad;
+      --text-dim:    #3e7070;
+      --white:       #ffffff;
+      --font-sans:   'Inter', system-ui, -apple-system, sans-serif;
+      --font-serif:  'Lora', Georgia, serif;
+      --font-mono:   'JetBrains Mono', 'Fira Code', monospace;
+      --r-sm:  8px;  --r-md: 14px;  --r-lg: 20px;  --r-xl: 28px;
+      --shadow-card: 0 4px 32px rgba(0,0,0,0.5), 0 1px 6px rgba(0,0,0,0.4);
+    }
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    html { scroll-behavior:smooth; }
+    body {
+      font-family: var(--font-sans);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* ── Navigation ───────────────────────────────────────────────────────────── */
+    nav {
+      position: fixed; top:0; left:0; right:0; z-index:100;
+      height: 64px;
+      display: flex; align-items:center; justify-content:space-between;
+      padding: 0 48px;
+      background: rgba(8,24,24,0.82);
+      backdrop-filter: blur(18px) saturate(1.4);
+      border-bottom: 1px solid var(--border-sub);
+    }
+    .nav-logo {
+      display:flex; align-items:center; gap:10px;
+      text-decoration:none; color:var(--text);
+    }
+    .nav-logo-text {
+      font-size:16px; font-weight:600; letter-spacing:-0.3px;
+    }
+    .nav-links {
+      display:flex; align-items:center; gap:32px; list-style:none;
+    }
+    .nav-links a {
+      font-size:14px; font-weight:500; color:var(--text-muted);
+      text-decoration:none; transition:color .15s;
+    }
+    .nav-links a:hover { color:var(--text); }
+    .btn-nav {
+      padding:8px 20px;
+      background:var(--accent); color:#041414;
+      border:none; border-radius:99px;
+      font-size:14px; font-weight:600; cursor:pointer;
+      text-decoration:none;
+      transition:opacity .15s, transform .1s;
+    }
+    .btn-nav:hover { opacity:.88; transform:translateY(-1px); }
+
+    /* ── Hero ─────────────────────────────────────────────────────────────────── */
+    .hero {
+      position:relative; min-height:100vh;
+      display:flex; flex-direction:column;
+      align-items:center; justify-content:center;
+      text-align:center; padding:120px 24px 80px;
+      overflow:hidden;
+    }
+    .hero-glow {
+      position:absolute; top:0; left:50%; transform:translateX(-50%);
+      width:900px; height:700px;
+      background:radial-gradient(ellipse at 50% 0%, rgba(78,205,196,.2) 0%, transparent 60%);
+      pointer-events:none;
+    }
+    .hero-stars {
+      position:absolute; inset:0; pointer-events:none;
+      background-image:
+        radial-gradient(1px 1px at 15% 18%, rgba(255,255,255,.6) 0%, transparent 100%),
+        radial-gradient(1px 1px at 72% 12%, rgba(255,255,255,.5) 0%, transparent 100%),
+        radial-gradient(1px 1px at 44% 35%, rgba(255,255,255,.4) 0%, transparent 100%),
+        radial-gradient(1.5px 1.5px at 88% 28%, rgba(78,205,196,.7) 0%, transparent 100%),
+        radial-gradient(1px 1px at 28% 60%, rgba(255,255,255,.3) 0%, transparent 100%),
+        radial-gradient(1px 1px at 62% 72%, rgba(255,255,255,.4) 0%, transparent 100%),
+        radial-gradient(1.5px 1.5px at 8% 82%, rgba(78,205,196,.5) 0%, transparent 100%),
+        radial-gradient(1px 1px at 92% 88%, rgba(255,255,255,.3) 0%, transparent 100%);
+    }
+    .hero-badge {
+      position:relative;
+      display:inline-flex; align-items:center; gap:7px;
+      padding:7px 16px;
+      background:var(--accent-dim);
+      border:1px solid rgba(78,205,196,.3);
+      border-radius:99px;
+      font-size:12px; font-weight:600;
+      color:var(--accent); letter-spacing:.8px; text-transform:uppercase;
+      margin-bottom:28px;
+    }
+    .hero h1 {
+      position:relative;
+      font-family:var(--font-serif);
+      font-size:clamp(44px,7.5vw,92px);
+      font-weight:600; line-height:1.06; letter-spacing:-1.5px;
+      color:var(--white); max-width:900px; margin-bottom:24px;
+    }
+    .hero h1 em { font-style:italic; color:var(--accent); }
+    .hero-sub {
+      position:relative;
+      font-size:clamp(16px,2vw,20px); color:var(--text-muted);
+      max-width:560px; line-height:1.75; margin-bottom:44px;
+    }
+    .hero-cta {
+      position:relative;
+      display:flex; align-items:center; gap:14px;
+      flex-wrap:wrap; justify-content:center; margin-bottom:72px;
+    }
+    .btn-primary {
+      display:flex; align-items:center; gap:9px;
+      padding:14px 28px;
+      background:var(--accent); color:#041414;
+      border:none; border-radius:var(--r-md);
+      font-size:16px; font-weight:600; cursor:pointer;
+      text-decoration:none;
+      box-shadow:0 4px 24px rgba(78,205,196,.35);
+      transition:opacity .15s, transform .15s, box-shadow .15s;
+    }
+    .btn-primary:hover { opacity:.9; transform:translateY(-2px); box-shadow:0 8px 32px rgba(78,205,196,.45); }
+    .btn-ghost {
+      display:flex; align-items:center; gap:9px;
+      padding:14px 28px;
+      background:transparent; color:var(--text);
+      border:1px solid var(--border);
+      border-radius:var(--r-md);
+      font-size:16px; font-weight:500; cursor:pointer;
+      text-decoration:none;
+      transition:background .15s, border-color .15s, transform .15s;
+    }
+    .btn-ghost:hover { background:var(--bg-3); border-color:var(--text-dim); transform:translateY(-2px); }
+
+    /* ── App mockup ───────────────────────────────────────────────────────────── */
+    .hero-app {
+      position:relative; width:min(1040px,96vw);
+      background:var(--bg-2);
+      border:1px solid var(--border);
+      border-radius:var(--r-xl);
+      box-shadow:var(--shadow-card), 0 0 60px rgba(78,205,196,.1);
+      overflow:hidden;
+    }
+    .app-chrome {
+      display:flex; align-items:center; gap:7px;
+      padding:13px 18px;
+      background:var(--bg-3);
+      border-bottom:1px solid var(--border-sub);
+    }
+    .dot { width:11px; height:11px; border-radius:50%; }
+    .dot-r { background:#ff5f57; } .dot-y { background:#febc2e; } .dot-g { background:#28c840; }
+    .app-body {
+      display:grid; grid-template-columns:200px 260px 1fr; min-height:460px;
+    }
+    /* sidebar */
+    .app-sidebar { background:#091e1e; border-right:1px solid var(--border-sub); padding:14px 0; }
+    .sb-section { padding:4px 14px 10px; }
+    .sb-label { font-size:10px; font-weight:600; letter-spacing:1.2px; text-transform:uppercase; color:var(--text-dim); margin-bottom:5px; }
+    .sb-item {
+      display:flex; align-items:center; gap:8px;
+      padding:7px 9px; border-radius:var(--r-sm);
+      font-size:12px; color:var(--text-muted); cursor:default;
+    }
+    .sb-item.on { background:rgba(78,205,196,.1); color:var(--accent); }
+    /* note list */
+    .app-list { background:#0a1f1f; border-right:1px solid var(--border-sub); padding:12px 0; }
+    .nl-item { padding:11px 14px; cursor:default; transition:background .1s; }
+    .nl-item:hover, .nl-item.on { background:rgba(78,205,196,.07); }
+    .nl-title { font-size:13px; font-weight:500; color:var(--text); margin-bottom:3px; }
+    .nl-exc { font-size:11px; color:var(--text-dim); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .nl-date { font-size:10px; color:var(--text-dim); margin-top:3px; }
+    /* editor */
+    .app-editor { padding:32px 28px; display:flex; flex-direction:column; gap:13px; }
+    .ed-h1 { font-family:var(--font-serif); font-size:22px; font-weight:600; color:var(--white); }
+    .ed-p { font-size:13px; color:var(--text-muted); line-height:1.8; }
+    .ed-block {
+      background:#071616; border:1px solid var(--border-sub);
+      border-radius:var(--r-sm); padding:11px 14px;
+      font-family:var(--font-mono); font-size:11.5px;
+      color:#4ecdc4; line-height:1.75;
+    }
+    .ed-tag {
+      display:inline-block; padding:1px 7px;
+      background:rgba(78,205,196,.1); border-radius:4px;
+      font-size:11px; font-family:var(--font-mono); color:var(--accent);
+    }
+
+    /* ── Marquee strip ────────────────────────────────────────────────────────── */
+    .strip {
+      padding:18px 0; overflow:hidden;
+      background:var(--bg-2);
+      border-top:1px solid var(--border-sub);
+      border-bottom:1px solid var(--border-sub);
+    }
+    .strip-row { display:flex; gap:48px; white-space:nowrap; animation:marquee 30s linear infinite; }
+    .strip-item {
+      display:flex; align-items:center; gap:9px;
+      font-size:13px; font-weight:500; color:var(--text-muted);
+      flex-shrink:0;
+    }
+    .strip-item svg { color:var(--accent); }
+    @keyframes marquee { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
+
+    /* ── Layout helpers ───────────────────────────────────────────────────────── */
+    .container { max-width:1100px; margin:0 auto; padding:0 28px; }
+    .eyebrow { font-size:11.5px; font-weight:600; letter-spacing:2px; text-transform:uppercase; color:var(--accent); margin-bottom:12px; }
+    .section-h { font-family:var(--font-serif); font-size:clamp(28px,4vw,48px); font-weight:600; color:var(--white); line-height:1.13; letter-spacing:-.5px; margin-bottom:16px; }
+    .section-p { font-size:17px; color:var(--text-muted); line-height:1.75; max-width:520px; }
+
+    /* ── Features ─────────────────────────────────────────────────────────────── */
+    .features { padding:120px 0; }
+    .feat-header { text-align:center; margin-bottom:72px; }
+    .feat-header .section-p { margin:0 auto; }
+    .feat-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:18px; }
+    .feat-card {
+      background:var(--card); border:1px solid var(--border);
+      border-radius:var(--r-lg); padding:30px;
+      transition:border-color .2s, transform .2s, box-shadow .2s;
+    }
+    .feat-card:hover { border-color:rgba(78,205,196,.35); transform:translateY(-4px); box-shadow:var(--shadow-card); }
+    .feat-card.span2 { grid-column:span 2; display:grid; grid-template-columns:1fr 1fr; gap:24px; align-items:center; }
+    .feat-icon {
+      width:44px; height:44px; border-radius:12px;
+      background:var(--accent-dim); color:var(--accent);
+      display:flex; align-items:center; justify-content:center;
+      margin-bottom:20px;
+    }
+    .feat-card h3 { font-size:17px; font-weight:600; color:var(--white); margin-bottom:9px; }
+    .feat-card p  { font-size:14px; color:var(--text-muted); line-height:1.7; }
+    .feat-demo {
+      background:#071515; border:1px solid var(--border-sub);
+      border-radius:10px; padding:20px;
+      font-family:var(--font-mono); font-size:12px; line-height:1.85;
+    }
+
+    /* ── Showcase ─────────────────────────────────────────────────────────────── */
+    .showcase { padding:100px 0; background:var(--bg-2); }
+    .showcase-grid { display:grid; grid-template-columns:1fr 1fr; gap:70px; align-items:center; }
+    .code-window {
+      background:var(--bg-3); border:1px solid var(--border);
+      border-radius:var(--r-lg); overflow:hidden;
+    }
+    .code-chrome {
+      display:flex; align-items:center; gap:7px; padding:12px 16px;
+      background:#091e1e; border-bottom:1px solid var(--border-sub);
+    }
+    .code-filename { font-size:12px; font-weight:500; color:var(--text-dim); margin-left:4px; }
+    .code-body { padding:24px; font-family:var(--font-mono); font-size:12.5px; line-height:1.95; }
+    .t-func { color:#4ecdc4; } .t-str { color:#ffd166; } .t-arg { color:#ffb3b3; }
+    .t-text { color:#b0d4d4; } .t-head { color:#fff; font-weight:600; } .t-cm { color:#2e6060; }
+    .check-list { display:flex; flex-direction:column; gap:14px; }
+    .check-item { display:flex; align-items:flex-start; gap:13px; }
+    .check-dot {
+      width:20px; height:20px; flex-shrink:0; margin-top:2px;
+      background:var(--accent-dim); color:var(--accent);
+      border-radius:50%; display:flex; align-items:center; justify-content:center;
+    }
+    .check-item strong { font-size:14px; color:var(--white); display:block; margin-bottom:2px; }
+    .check-item span { font-size:13px; color:var(--text-muted); }
+
+    /* ── Document types ───────────────────────────────────────────────────────── */
+    .doctypes { padding:100px 0; }
+    .dt-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-top:52px; }
+    .dt-card {
+      background:var(--card); border:1px solid var(--border);
+      border-radius:var(--r-lg); padding:28px 22px; text-align:center;
+      transition:border-color .2s, transform .2s;
+    }
+    .dt-card:hover { border-color:var(--accent); transform:translateY(-4px); }
+    .dt-emoji { font-size:36px; margin-bottom:14px; }
+    .dt-name { font-size:15px; font-weight:600; color:var(--white); margin-bottom:7px; }
+    .dt-desc { font-size:13px; color:var(--text-muted); line-height:1.55; }
+    .dt-badge {
+      display:inline-block; margin-top:14px; padding:5px 10px;
+      background:var(--accent-dim); border-radius:6px;
+      font-family:var(--font-mono); font-size:11px; color:var(--accent);
+    }
+
+    /* ── Themes ───────────────────────────────────────────────────────────────── */
+    .themes-sec { padding:100px 0; background:var(--bg-2); }
+    .themes-inner { display:grid; grid-template-columns:1fr 1fr; gap:80px; align-items:center; }
+    .themes-row { display:flex; gap:12px; margin-top:44px; overflow-x:auto; padding-bottom:4px; }
+    .theme-chip {
+      flex-shrink:0; width:148px; height:96px;
+      border-radius:var(--r-md); border:2px solid transparent;
+      overflow:hidden; cursor:pointer; position:relative;
+      transition:border-color .2s, transform .2s;
+    }
+    .theme-chip:hover { border-color:var(--accent); transform:translateY(-3px); }
+    .theme-preview { height:70px; padding:9px 11px; display:flex; flex-direction:column; gap:4px; }
+    .theme-bar { border-radius:3px; }
+    .theme-label { position:absolute; bottom:7px; left:0; right:0; text-align:center; font-size:10.5px; font-weight:500; }
+
+    /* ── Sync ─────────────────────────────────────────────────────────────────── */
+    .sync-sec { padding:100px 0; }
+    .sync-inner { display:grid; grid-template-columns:1fr 1fr; gap:80px; align-items:center; }
+    .sync-visual { display:flex; justify-content:center; }
+    .devices { display:flex; align-items:flex-end; gap:16px; }
+    .device {
+      background:var(--card); border:1px solid var(--border);
+      border-radius:var(--r-md); overflow:hidden;
+    }
+    .device.lg { width:210px; }
+    .device.sm { width:86px; }
+    .d-chrome { height:20px; background:var(--bg-3); border-bottom:1px solid var(--border-sub); display:flex; align-items:center; padding:0 8px; gap:4px; }
+    .d-body { padding:12px; display:flex; flex-direction:column; gap:6px; }
+    .d-line { height:6px; border-radius:3px; background:var(--border); }
+    .sync-arrows { display:flex; flex-direction:column; align-items:center; gap:8px; color:var(--accent); padding-bottom:20px; }
+    .sync-line { width:1px; height:36px; background:linear-gradient(to bottom,var(--accent),transparent); }
+
+    /* ── Platforms ────────────────────────────────────────────────────────────── */
+    .platforms-sec { padding:120px 0; background:var(--bg-2); text-align:center; }
+    .platform-badges { display:flex; align-items:center; justify-content:center; gap:14px; margin-top:52px; flex-wrap:wrap; }
+    .badge {
+      display:flex; align-items:center; gap:11px;
+      padding:14px 22px;
+      background:var(--card); border:1px solid var(--border);
+      border-radius:var(--r-md);
+      font-size:14px; font-weight:500; color:var(--text);
+      text-decoration:none; cursor:pointer;
+      transition:border-color .2s, transform .15s, background .15s;
+    }
+    .badge:hover { background:var(--bg-3); border-color:var(--accent); transform:translateY(-2px); }
+    .badge small { display:block; font-size:11px; color:var(--text-muted); font-weight:400; }
+
+    /* ── CTA ──────────────────────────────────────────────────────────────────── */
+    .cta-sec {
+      padding:140px 0; text-align:center; position:relative; overflow:hidden;
+    }
+    .cta-glow {
+      position:absolute; bottom:-80px; left:50%; transform:translateX(-50%);
+      width:700px; height:500px;
+      background:radial-gradient(ellipse, rgba(78,205,196,.13) 0%, transparent 65%);
+      pointer-events:none;
+    }
+    .cta-sec h2 {
+      font-family:var(--font-serif);
+      font-size:clamp(32px,5.5vw,64px);
+      font-weight:600; color:var(--white);
+      line-height:1.08; letter-spacing:-.5px; margin-bottom:20px;
+    }
+    .cta-sec p { font-size:18px; color:var(--text-muted); max-width:480px; margin:0 auto 44px; line-height:1.7; }
+
+    /* ── Footer ───────────────────────────────────────────────────────────────── */
+    footer { border-top:1px solid var(--border-sub); padding:52px 0 36px; background:var(--bg); }
+    .footer-grid { display:grid; grid-template-columns:1.6fr repeat(3,1fr); gap:40px; }
+    .footer-brand p { font-size:13px; color:var(--text-muted); margin-top:12px; line-height:1.65; max-width:230px; }
+    .footer-col h4 { font-size:11px; font-weight:600; letter-spacing:1.2px; text-transform:uppercase; color:var(--text-dim); margin-bottom:14px; }
+    .footer-col ul { list-style:none; display:flex; flex-direction:column; gap:8px; }
+    .footer-col a { font-size:14px; color:var(--text-muted); text-decoration:none; transition:color .15s; }
+    .footer-col a:hover { color:var(--text); }
+    .footer-bottom { margin-top:44px; padding-top:22px; border-top:1px solid var(--border-sub); display:flex; justify-content:space-between; align-items:center; }
+    .footer-bottom p { font-size:13px; color:var(--text-dim); }
+    .footer-bottom a { color:var(--accent); text-decoration:none; }
+    .footer-bottom a:hover { text-decoration:underline; }
+
+    /* ── Inline utility ───────────────────────────────────────────────────────── */
+    code.hl { font-family:var(--font-mono); font-size:12px; color:var(--accent); background:var(--accent-dim); padding:2px 7px; border-radius:4px; }
+
+    /* ── Responsive ───────────────────────────────────────────────────────────── */
+    @media(max-width:960px) {
+      nav { padding:0 20px; }
+      .nav-links { gap:20px; }
+      .feat-grid { grid-template-columns:1fr 1fr; }
+      .feat-card.span2 { grid-column:span 2; grid-template-columns:1fr; }
+      .showcase-grid, .themes-inner, .sync-inner { grid-template-columns:1fr; gap:48px; }
+      .dt-grid { grid-template-columns:repeat(2,1fr); }
+      .footer-grid { grid-template-columns:1fr 1fr; }
+      .app-body { grid-template-columns:1fr; }
+      .app-sidebar, .app-list { display:none; }
+    }
+    @media(max-width:640px) {
+      .nav-links li:not(:last-child) { display:none; }
+      .feat-grid, .feat-card.span2 { grid-template-columns:1fr; grid-column:span 1; }
+      .dt-grid { grid-template-columns:1fr 1fr; }
+      .footer-grid { grid-template-columns:1fr; }
+      .hero h1 { letter-spacing:-.8px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══ NAV ══════════════════════════════════════════════════════════════════ -->
+<nav>
+  <a href="#" class="nav-logo">
+    <svg width="30" height="30" viewBox="0 0 32 32" fill="none">
+      <circle cx="16" cy="16" r="3.5" fill="#4ecdc4"/>
+      <circle cx="16" cy="16" r="1.5" fill="white"/>
+      <ellipse cx="16" cy="16" rx="14" ry="5.5" stroke="#4ecdc4" stroke-width="1.4" fill="none" opacity=".8"/>
+      <ellipse cx="16" cy="16" rx="14" ry="5.5" stroke="#4ecdc4" stroke-width="1.4" fill="none" opacity=".8" transform="rotate(60 16 16)"/>
+      <ellipse cx="16" cy="16" rx="14" ry="5.5" stroke="#4ecdc4" stroke-width="1.4" fill="none" opacity=".8" transform="rotate(-60 16 16)"/>
+    </svg>
+    <span class="nav-logo-text">quark notes</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#features">Features</a></li>
+    <li><a href="#showcase">Quarkdown</a></li>
+    <li><a href="#platforms">Platforms</a></li>
+    <li><a href="https://quarkdown.com" target="_blank">Docs</a></li>
+    <li><a href="#cta" class="btn-nav">Download</a></li>
+  </ul>
+</nav>
+
+<!-- ══ HERO ═════════════════════════════════════════════════════════════════ -->
+<section class="hero">
+  <div class="hero-glow"></div>
+  <div class="hero-stars"></div>
+
+  <div class="hero-badge">
+    <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>
+    Powered by Quarkdown
+  </div>
+
+  <h1>Write beautifully.<br><em>Think in atoms.</em></h1>
+
+  <p class="hero-sub">
+    The only note editor built natively for Quarkdown — the Turing-complete Markdown flavor
+    that compiles to HTML, PDF, and slides. Write naturally. Publish professionally.
+  </p>
+
+  <div class="hero-cta">
+    <a href="#cta" class="btn-primary">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Download Free
+    </a>
+    <a href="https://github.com/thedocwhocode/quarkdown-live-editor" class="btn-ghost" target="_blank">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.44 9.8 8.21 11.39.6.11.79-.26.79-.58v-2.23c-3.34.73-4.03-1.42-4.03-1.42-.55-1.39-1.34-1.76-1.34-1.76-1.09-.74.08-.73.08-.73 1.2.09 1.84 1.24 1.84 1.24 1.07 1.83 2.81 1.3 3.49 1 .11-.78.42-1.31.76-1.61-2.67-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.12-.3-.54-1.52.12-3.18 0 0 1.01-.32 3.3 1.23A11.5 11.5 0 0112 5.8c1.02.005 2.05.14 3.01.4 2.29-1.55 3.3-1.23 3.3-1.23.66 1.66.24 2.88.12 3.18.77.84 1.24 1.91 1.24 3.22 0 4.61-2.81 5.63-5.48 5.92.43.37.82 1.1.82 2.22v3.29c0 .32.19.7.8.58C20.56 21.8 24 17.3 24 12c0-6.63-5.37-12-12-12z"/></svg>
+      View on GitHub
+    </a>
+  </div>
+
+  <!-- ── App mockup ─────────────────────────────────── -->
+  <div class="hero-app">
+    <div class="app-chrome">
+      <div class="dot dot-r"></div><div class="dot dot-y"></div><div class="dot dot-g"></div>
+    </div>
+    <div class="app-body">
+      <div class="app-sidebar">
+        <div class="sb-section">
+          <div class="sb-label">Library</div>
+          <div class="sb-item on">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+            All Notes
+          </div>
+          <div class="sb-item">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            Pinned
+          </div>
+        </div>
+        <div class="sb-section">
+          <div class="sb-label">Notebooks</div>
+          <div class="sb-item">📚 Research</div>
+          <div class="sb-item">📝 Personal</div>
+          <div class="sb-item">💼 Work</div>
+          <div class="sb-item">🔬 Physics</div>
+        </div>
+      </div>
+
+      <div class="app-list">
+        <div class="nl-item on">
+          <div class="nl-title">Quantum Mechanics</div>
+          <div class="nl-exc">.math {E = mc²} — Schrödinger eq...</div>
+          <div class="nl-date">Today · 3 min read</div>
+        </div>
+        <div class="nl-item">
+          <div class="nl-title">Project Proposal</div>
+          <div class="nl-exc">.doctype {paged} — exports to PDF...</div>
+          <div class="nl-date">Yesterday</div>
+        </div>
+        <div class="nl-item">
+          <div class="nl-title">Conference Slides</div>
+          <div class="nl-exc">.doctype {slides} — Reveal.js deck</div>
+          <div class="nl-date">3 days ago</div>
+        </div>
+        <div class="nl-item">
+          <div class="nl-title">Reading List</div>
+          <div class="nl-exc">.foreach {books} item: {.item}</div>
+          <div class="nl-date">Last week</div>
+        </div>
+      </div>
+
+      <div class="app-editor">
+        <div class="ed-h1"># Quantum Mechanics Notes</div>
+        <div class="ed-p">The Schrödinger equation describes time evolution of a quantum state:</div>
+        <div class="ed-block">
+.math<br>
+&nbsp;&nbsp;&nbsp;&nbsp;i\hbar\frac{\partial}{\partial t}\Psi(\mathbf{r},t) = \hat{H}\Psi(\mathbf{r},t)
+        </div>
+        <div class="ed-p">Using <span class="ed-tag">.foreach</span> to generate sections from data:</div>
+        <div class="ed-block">
+.foreach {eigenvalues} n:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;**Energy level .n** = (n + ½)ℏω
+        </div>
+        <div class="ed-p">Write naturally. Quarkdown handles the rest — <em style="color:var(--accent)">math, diagrams, layout.</em></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ MARQUEE ═══════════════════════════════════════════════════════════════ -->
+<div class="strip">
+  <div class="strip-row">
+    <!-- items × 2 for seamless loop -->
+    <div class="strip-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>Native Quarkdown</div>
+    <div class="strip-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>Offline-first SQLite</div>
+    <div class="strip-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>KaTeX Math</div>
+    <div class="strip-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>Mermaid Diagrams</div>
+    <div class="strip-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>Reveal.js Slides</div>
+    <div class="strip-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>PDF Export</div>
+    <div class="strip-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>Cloud Sync</div>
+    <div class="strip-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>iOS &amp; Android</div>
+    <div class="strip-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Block Editor</div>
+    <!-- duplicate -->
+    <div class="strip-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>Native Quarkdown</div>
+    <div class="strip-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>Offline-first SQLite</div>
+    <div class="strip-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>KaTeX Math</div>
+    <div class="strip-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>Mermaid Diagrams</div>
+    <div class="strip-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>Reveal.js Slides</div>
+    <div class="strip-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>PDF Export</div>
+    <div class="strip-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>Cloud Sync</div>
+    <div class="strip-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>iOS &amp; Android</div>
+    <div class="strip-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Block Editor</div>
+  </div>
+</div>
+
+<!-- ══ FEATURES ══════════════════════════════════════════════════════════════ -->
+<section class="features" id="features">
+  <div class="container">
+    <div class="feat-header">
+      <div class="eyebrow">Everything you need</div>
+      <h2 class="section-h">A note editor that thinks<br>as deeply as you do</h2>
+      <p class="section-p">Built from the ground up for Quarkdown — the only editor that gives you a full typesetting system inside a notebook interface.</p>
+    </div>
+
+    <div class="feat-grid">
+
+      <!-- span-2: Quarkdown native -->
+      <div class="feat-card span2" id="showcase">
+        <div>
+          <div class="feat-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
+          </div>
+          <h3>Native Quarkdown</h3>
+          <p>Write <code class="hl">.math</code>, <code class="hl">.foreach</code>, <code class="hl">.figure</code>, <code class="hl">.mermaid</code> and hundreds of stdlib functions right inside your notes. The entire Quarkdown language, always available.</p>
+        </div>
+        <div class="feat-demo">
+          <div><span class="t-head"># My Research Note</span></div>
+          <div>&nbsp;</div>
+          <div><span class="t-cm">// KaTeX math, rendered inline</span></div>
+          <div><span class="t-func">.math</span></div>
+          <div><span class="t-arg">&nbsp;&nbsp;&nbsp;&nbsp;\int_{-\infty}^{\infty} e^{-x^2}dx = \sqrt{\pi}</span></div>
+          <div>&nbsp;</div>
+          <div><span class="t-cm">// Loop over data</span></div>
+          <div><span class="t-func">.foreach</span> <span class="t-str">{topics}</span> <span class="t-arg">item:</span></div>
+          <div><span class="t-arg">&nbsp;&nbsp;&nbsp;&nbsp;## .item</span></div>
+          <div>&nbsp;</div>
+          <div><span class="t-func">.mermaid</span></div>
+          <div><span class="t-arg">&nbsp;&nbsp;&nbsp;&nbsp;graph LR; A --&gt; B --&gt; C</span></div>
+        </div>
+      </div>
+
+      <!-- Offline-first -->
+      <div class="feat-card">
+        <div class="feat-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+        </div>
+        <h3>Offline-first</h3>
+        <p>All notes live in a local SQLite database. No forced cloud, no subscription, no internet required. Your data stays on your machine.</p>
+      </div>
+
+      <!-- Block editor -->
+      <div class="feat-card">
+        <div class="feat-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        </div>
+        <h3>Structured Block Editor</h3>
+        <p>A Notion-inspired block editor with a slash command palette for quick inserts. Drop into raw source view for the full Quarkdown experience.</p>
+      </div>
+
+      <!-- Multi-platform -->
+      <div class="feat-card">
+        <div class="feat-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+        </div>
+        <h3>Every Platform</h3>
+        <p>Native desktop on macOS, Windows, and Linux via Tauri 2. Plus iOS and Android support — one unified experience everywhere.</p>
+      </div>
+
+      <!-- Cloud sync -->
+      <div class="feat-card">
+        <div class="feat-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+        </div>
+        <h3>Cloud Sync</h3>
+        <p>Push notes to a self-hosted Quark Cloud server, pull them on any device. Privacy-first, optional, and completely yours to control.</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══ QUARKDOWN SHOWCASE ════════════════════════════════════════════════════ -->
+<section class="showcase">
+  <div class="container">
+    <div class="showcase-grid">
+      <div>
+        <div class="eyebrow">The Quarkdown advantage</div>
+        <h2 class="section-h">More than Markdown.<br>A full language.</h2>
+        <p class="section-p" style="margin-bottom:32px">Quarkdown extends CommonMark with Turing-complete scripting. Variables, loops, custom functions, math, and diagrams — all as natural function calls inside your source.</p>
+        <div class="check-list">
+          <div class="check-item">
+            <div class="check-dot"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div><strong>Functions &amp; variables</strong><span>Define and reuse logic directly in your .qd files</span></div>
+          </div>
+          <div class="check-item">
+            <div class="check-dot"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div><strong>LaTeX-quality math via KaTeX</strong><span>Inline and display math, rendered natively at full fidelity</span></div>
+          </div>
+          <div class="check-item">
+            <div class="check-dot"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div><strong>Mermaid diagrams</strong><span>Flowcharts, ERDs, sequence diagrams — from text, inside your notes</span></div>
+          </div>
+          <div class="check-item">
+            <div class="check-dot"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5"><polyline points="20 6 9 17 4 12"/></svg></div>
+            <div><strong>One source, four output modes</strong><span>The same file compiles to plain, paged, slides, or docs</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="code-window">
+        <div class="code-chrome">
+          <div class="dot dot-r" style="width:10px;height:10px"></div>
+          <div class="dot dot-y" style="width:10px;height:10px"></div>
+          <div class="dot dot-g" style="width:10px;height:10px"></div>
+          <span class="code-filename">physics-notes.qd</span>
+        </div>
+        <div class="code-body">
+<span class="t-func">.doctype</span> <span class="t-str">{paged}</span><br>
+<span class="t-func">.title</span>   <span class="t-str">{Quantum Field Theory}</span><br>
+<span class="t-func">.author</span>  <span class="t-str">{Dr. Ada Chen}</span><br>
+<br>
+<span class="t-cm">## Introduction</span><br>
+<br>
+<span class="t-text">The QED Lagrangian density:</span><br>
+<br>
+<span class="t-func">.math</span><br>
+<span class="t-arg">&nbsp;&nbsp;&nbsp;&nbsp;\mathcal{L} = \bar{\psi}(i\gamma^\mu D_\mu - m)\psi</span><br>
+<span class="t-arg">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- \tfrac{1}{4}F_{\mu\nu}F^{\mu\nu}</span><br>
+<br>
+<span class="t-func">.variable</span> <span class="t-arg">chapters:</span> <span class="t-str">{6}</span><br>
+<br>
+<span class="t-func">.foreach</span> <span class="t-str">{1..chapters}</span> <span class="t-arg">n:</span><br>
+<span class="t-arg">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="t-cm">### Chapter .n</span><br>
+<br>
+<span class="t-func">.figure</span> <span class="t-arg">caption:</span><span class="t-str">{Feynman diagram}</span><br>
+<span class="t-arg">&nbsp;&nbsp;&nbsp;&nbsp;</span><span class="t-func">.mermaid</span><br>
+<span class="t-arg">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;graph LR; e1 --γ--&gt; e2</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ DOCUMENT TYPES ════════════════════════════════════════════════════════ -->
+<section class="doctypes" id="doctypes">
+  <div class="container">
+    <div style="text-align:center">
+      <div class="eyebrow">One source, many outputs</div>
+      <h2 class="section-h">Write once.<br>Publish everywhere.</h2>
+      <p class="section-p" style="margin:0 auto">Set your document type with a single function call. The same notes compile to four completely different professional outputs.</p>
+    </div>
+
+    <div class="dt-grid">
+      <div class="dt-card">
+        <div class="dt-emoji">📄</div>
+        <div class="dt-name">Plain</div>
+        <div class="dt-desc">Notion-like documents. Perfect for notes, wikis, and web pages.</div>
+        <div class="dt-badge">.doctype {plain}</div>
+      </div>
+      <div class="dt-card">
+        <div class="dt-emoji">📖</div>
+        <div class="dt-name">Paged</div>
+        <div class="dt-desc">LaTeX-quality PDF output via Paged.js. Books, papers, academic reports.</div>
+        <div class="dt-badge">.doctype {paged}</div>
+      </div>
+      <div class="dt-card">
+        <div class="dt-emoji">🎬</div>
+        <div class="dt-name">Slides</div>
+        <div class="dt-desc">Beautiful presentations powered by Reveal.js — from the same source file.</div>
+        <div class="dt-badge">.doctype {slides}</div>
+      </div>
+      <div class="dt-card">
+        <div class="dt-emoji">🗂️</div>
+        <div class="dt-name">Docs</div>
+        <div class="dt-desc">Technical documentation websites and wikis with built-in navigation.</div>
+        <div class="dt-badge">.doctype {docs}</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ THEMES ════════════════════════════════════════════════════════════════ -->
+<section class="themes-sec" id="themes">
+  <div class="container">
+    <div class="themes-inner">
+      <div>
+        <div class="eyebrow">5 hand-crafted themes</div>
+        <h2 class="section-h">Make it yours.</h2>
+        <p class="section-p">Switch between five beautiful themes — from warm parchment to deep graphite. Layout and color themes are independent, giving you more combinations with less effort.</p>
+      </div>
+      <div>
+        <div class="themes-row">
+          <div class="theme-chip" style="background:#faf8f5; border-color:#e8e0d4">
+            <div class="theme-preview" style="background:#faf8f5">
+              <div class="theme-bar" style="height:7px;background:#d4774a;width:55%"></div>
+              <div class="theme-bar" style="height:5px;background:#c8b99a;width:75%"></div>
+              <div class="theme-bar" style="height:5px;background:#c8b99a;width:60%"></div>
+            </div>
+            <div class="theme-label" style="color:#8a7060">Warm Paper</div>
+          </div>
+          <div class="theme-chip" style="background:#1e141a">
+            <div class="theme-preview" style="background:#1e141a">
+              <div class="theme-bar" style="height:7px;background:#c44569;width:55%"></div>
+              <div class="theme-bar" style="height:5px;background:#3a2530;width:75%"></div>
+              <div class="theme-bar" style="height:5px;background:#3a2530;width:60%"></div>
+            </div>
+            <div class="theme-label" style="color:#c44569">Red Graphite</div>
+          </div>
+          <div class="theme-chip" style="background:#f0feff; border-color:#cce8ee">
+            <div class="theme-preview" style="background:#f0feff">
+              <div class="theme-bar" style="height:7px;background:#2e9bba;width:55%"></div>
+              <div class="theme-bar" style="height:5px;background:#cde8f0;width:75%"></div>
+              <div class="theme-bar" style="height:5px;background:#cde8f0;width:60%"></div>
+            </div>
+            <div class="theme-label" style="color:#2e9bba">Toothpaste</div>
+          </div>
+          <div class="theme-chip" style="background:#fdf6e3; border-color:#e8d8b0">
+            <div class="theme-preview" style="background:#fdf6e3">
+              <div class="theme-bar" style="height:7px;background:#268bd2;width:55%"></div>
+              <div class="theme-bar" style="height:5px;background:#ddd0a0;width:75%"></div>
+              <div class="theme-bar" style="height:5px;background:#ddd0a0;width:60%"></div>
+            </div>
+            <div class="theme-label" style="color:#657b83">Solarized</div>
+          </div>
+          <div class="theme-chip" style="background:#1c1c1e">
+            <div class="theme-preview" style="background:#1c1c1e">
+              <div class="theme-bar" style="height:7px;background:#ff9f0a;width:55%"></div>
+              <div class="theme-bar" style="height:5px;background:#2c2c2e;width:75%"></div>
+              <div class="theme-bar" style="height:5px;background:#2c2c2e;width:60%"></div>
+            </div>
+            <div class="theme-label" style="color:#ff9f0a">Bear Dark</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ CLOUD SYNC ════════════════════════════════════════════════════════════ -->
+<section class="sync-sec" id="sync">
+  <div class="container">
+    <div class="sync-inner">
+      <div class="sync-visual">
+        <div class="devices">
+          <!-- Desktop mock -->
+          <div class="device lg">
+            <div class="d-chrome">
+              <div class="dot dot-r" style="width:7px;height:7px"></div>
+              <div class="dot dot-y" style="width:7px;height:7px"></div>
+              <div class="dot dot-g" style="width:7px;height:7px"></div>
+            </div>
+            <div class="d-body">
+              <div class="d-line" style="width:80%"></div>
+              <div class="d-line" style="width:65%"></div>
+              <div class="d-line" style="width:72%"></div>
+              <div style="height:6px"></div>
+              <div class="d-line" style="width:55%;background:rgba(78,205,196,.25)"></div>
+              <div class="d-line" style="width:40%;background:rgba(78,205,196,.15)"></div>
+            </div>
+          </div>
+
+          <!-- Sync arrows -->
+          <div class="sync-arrows">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>
+            <div class="sync-line"></div>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L1 14"/></svg>
+          </div>
+
+          <!-- Mobile mock -->
+          <div class="device sm">
+            <div class="d-chrome" style="height:14px"></div>
+            <div class="d-body">
+              <div class="d-line" style="width:90%"></div>
+              <div class="d-line" style="width:70%"></div>
+              <div class="d-line" style="width:80%"></div>
+              <div style="height:4px"></div>
+              <div class="d-line" style="width:60%;background:rgba(78,205,196,.25)"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <div class="eyebrow">Cloud Sync</div>
+        <h2 class="section-h">Your notes,<br>everywhere.</h2>
+        <p class="section-p" style="margin-bottom:28px">Push locally-written notes to a Quark Cloud server and pull them on any other device. Self-hostable, privacy-first, with automatic conflict resolution.</p>
+        <div style="display:flex;flex-direction:column;gap:11px">
+          <div style="display:flex;align-items:center;gap:10px;font-size:14px;color:var(--text-muted)">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            Works on desktop and mobile
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;font-size:14px;color:var(--text-muted)">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            Self-host with Docker in minutes
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;font-size:14px;color:var(--text-muted)">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            API-token auth — your data stays yours
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;font-size:14px;color:var(--text-muted)">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            Offline-first — sync is always optional
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ PLATFORMS ═════════════════════════════════════════════════════════════ -->
+<section class="platforms-sec" id="platforms">
+  <div class="container">
+    <div class="eyebrow">Available everywhere</div>
+    <h2 class="section-h">All your devices.<br>One experience.</h2>
+    <p class="section-p" style="margin:0 auto">Built with Tauri 2 for native desktop performance. Extended to iOS and Android so your notes travel with you.</p>
+
+    <div class="platform-badges">
+      <div class="badge">
+        <svg width="22" height="22" viewBox="0 0 814 1000" fill="currentColor"><path d="M788.1 340.9c-5.8 4.5-108.2 62.2-108.2 190.5 0 148.4 130.3 200.9 134.2 202.2-.6 3.2-20.7 71.9-68.7 141.9-42.8 61.6-87.5 123.1-155.5 123.1s-85.5-39.5-164-39.5c-76 0-103.7 40.8-165.9 40.8s-105-57.8-155.5-127.4C46 376.7 0 248.7 0 126.8c0-70.3 15.6-134.8 78.2-202.2C134.4 14.4 209.9 0 278 0h10.3c63.5 0 130.7 22.6 176.3 59.1 45.6 36.4 73.8 92.7 73.8 92.7s32.9-67.2 80.7-105.4C667.3 8.4 729.2 0 791.5 0c0 0 164.5 24.8 164.5 188.2 0 0-7.4 6.5-168.5 152.7z"/></svg>
+        <div>Download for <small>macOS</small></div>
+      </div>
+      <div class="badge">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M0 0h11.377v11.372H0zm12.623 0H24v11.372H12.623zM0 12.623h11.377V24H0zm12.623 0H24V24H12.623z"/></svg>
+        <div>Download for <small>Windows</small></div>
+      </div>
+      <div class="badge">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M12.504 0c-.155 0-.315.008-.472.021C7.973.31 3.926 2.683 1.518 6.426c-2.078 3.245-2.709 7.119-1.736 10.84.01.036.019.073.03.11.208.79.511 1.554.903 2.277.393.723.87 1.402 1.427 2.021l.003.003c2.013 2.244 4.81 3.614 7.798 3.79.234.014.47.021.705.021h1.742C17.11 25.436 21 21.546 21 16.754c0-.09 0-.18-.003-.271 0-.015-.002-.03-.002-.046 0-.039.003-.078.003-.117V9.6c0-5.3-4.3-9.6-9.6-9.6zm0 2.4c3.97 0 7.2 3.23 7.2 7.2v6.72c0 .039-.003.078-.003.117v.059c.002.086.003.172.003.258 0 3.77-3.066 6.836-6.836 6.836h-1.742c-.194 0-.387-.007-.579-.017-2.31-.139-4.5-1.252-6.063-3.107-.462-.524-.852-1.095-1.161-1.703-.31-.608-.538-1.252-.674-1.918-.8-3.175-.275-6.493 1.494-9.28 1.97-3.08 5.228-5.047 8.793-5.3.125-.009.25-.013.375-.013zm-3.6 9.6c-.99 0-1.8.81-1.8 1.8s.81 1.8 1.8 1.8 1.8-.81 1.8-1.8-.81-1.8-1.8-1.8zm7.2 0c-.99 0-1.8.81-1.8 1.8s.81 1.8 1.8 1.8 1.8-.81 1.8-1.8-.81-1.8-1.8-1.8z"/></svg>
+        <div>Download for <small>Android</small></div>
+      </div>
+      <div class="badge">
+        <svg width="22" height="22" viewBox="0 0 814 1000" fill="currentColor"><path d="M788.1 340.9c-5.8 4.5-108.2 62.2-108.2 190.5 0 148.4 130.3 200.9 134.2 202.2-.6 3.2-20.7 71.9-68.7 141.9-42.8 61.6-87.5 123.1-155.5 123.1s-85.5-39.5-164-39.5c-76 0-103.7 40.8-165.9 40.8s-105-57.8-155.5-127.4C46 376.7 0 248.7 0 126.8c0-70.3 15.6-134.8 78.2-202.2C134.4 14.4 209.9 0 278 0h10.3c63.5 0 130.7 22.6 176.3 59.1 45.6 36.4 73.8 92.7 73.8 92.7s32.9-67.2 80.7-105.4C667.3 8.4 729.2 0 791.5 0c0 0 164.5 24.8 164.5 188.2 0 0-7.4 6.5-168.5 152.7z"/></svg>
+        <div>Download for <small>iOS</small></div>
+      </div>
+      <div class="badge" style="border-color:rgba(78,205,196,.3);background:rgba(78,205,196,.06)">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+        <div style="color:var(--accent)">Open source <small style="color:var(--text-muted)">GPL-3.0 · Free forever</small></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ CTA ════════════════════════════════════════════════════════════════════ -->
+<section class="cta-sec" id="cta">
+  <div class="cta-glow"></div>
+  <div class="container">
+    <!-- Big atom logo -->
+    <div style="margin:0 auto 36px;width:88px;height:88px;position:relative;display:flex;align-items:center;justify-content:center">
+      <svg viewBox="0 0 88 88" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="44" cy="44" r="7.5" fill="#4ecdc4" opacity=".9"/>
+        <circle cx="44" cy="44" r="3.5" fill="white"/>
+        <ellipse cx="44" cy="44" rx="40" ry="16" stroke="#4ecdc4" stroke-width="2" fill="none" opacity=".65"/>
+        <ellipse cx="44" cy="44" rx="40" ry="16" stroke="#4ecdc4" stroke-width="2" fill="none" opacity=".65" transform="rotate(60 44 44)"/>
+        <ellipse cx="44" cy="44" rx="40" ry="16" stroke="#4ecdc4" stroke-width="2" fill="none" opacity=".65" transform="rotate(-60 44 44)"/>
+        <circle cx="16" cy="22" r="2" fill="white" opacity=".7"/>
+        <circle cx="72" cy="64" r="1.5" fill="white" opacity=".55"/>
+        <circle cx="64" cy="17" r="1" fill="white" opacity=".65"/>
+        <circle cx="20" cy="68" r="1.5" fill="#4ecdc4" opacity=".5"/>
+      </svg>
+    </div>
+
+    <h2>Start writing.<br>In atoms.</h2>
+    <p>Free, open-source, and always will be. Download for your platform and write your first Quarkdown note in minutes.</p>
+
+    <div class="hero-cta" style="position:relative">
+      <a href="#" class="btn-primary" style="font-size:17px;padding:16px 34px">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Download Free
+      </a>
+      <a href="https://quarkdown.com" class="btn-ghost" style="font-size:17px;padding:16px 34px" target="_blank">
+        Read the Docs
+      </a>
+    </div>
+    <p style="position:relative;font-size:12.5px;color:var(--text-dim);margin-top:4px">
+      GPL-3.0 · Built on Quarkdown &amp; Tauri 2 · macOS · Windows · Linux · iOS · Android
+    </p>
+  </div>
+</section>
+
+<!-- ══ FOOTER ═════════════════════════════════════════════════════════════════ -->
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="#" class="nav-logo" style="display:inline-flex;margin-bottom:2px">
+          <svg width="26" height="26" viewBox="0 0 32 32" fill="none">
+            <circle cx="16" cy="16" r="3.5" fill="#4ecdc4"/>
+            <circle cx="16" cy="16" r="1.5" fill="white"/>
+            <ellipse cx="16" cy="16" rx="14" ry="5.5" stroke="#4ecdc4" stroke-width="1.4" fill="none" opacity=".8"/>
+            <ellipse cx="16" cy="16" rx="14" ry="5.5" stroke="#4ecdc4" stroke-width="1.4" fill="none" opacity=".8" transform="rotate(60 16 16)"/>
+            <ellipse cx="16" cy="16" rx="14" ry="5.5" stroke="#4ecdc4" stroke-width="1.4" fill="none" opacity=".8" transform="rotate(-60 16 16)"/>
+          </svg>
+          <span class="nav-logo-text">quark notes</span>
+        </a>
+        <p>A Quarkdown-native note editor. Write naturally. Publish professionally.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Product</h4>
+        <ul>
+          <li><a href="#features">Features</a></li>
+          <li><a href="#doctypes">Document Types</a></li>
+          <li><a href="#themes">Themes</a></li>
+          <li><a href="#sync">Cloud Sync</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Resources</h4>
+        <ul>
+          <li><a href="https://quarkdown.com" target="_blank">Quarkdown Docs</a></li>
+          <li><a href="#" target="_blank">Changelog</a></li>
+          <li><a href="#" target="_blank">Self-hosting Guide</a></li>
+          <li><a href="#" target="_blank">Themes</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Community</h4>
+        <ul>
+          <li><a href="https://github.com/iamgio/quarkdown" target="_blank">GitHub</a></li>
+          <li><a href="#" target="_blank">Discussions</a></li>
+          <li><a href="#" target="_blank">Contributing</a></li>
+          <li><a href="#" target="_blank">GPL-3.0 License</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <p>&copy; 2025 Quark Notes. Built with <a href="https://quarkdown.com" target="_blank">Quarkdown</a> &amp; Tauri 2.</p>
+      <p>Made with ♥ for the open-source community</p>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
