@@ -106,6 +106,15 @@ nb-configuration.xml
 /**/output/preview-*
 
 ##############################
+## Python / Django
+##############################
+db.sqlite3
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+##############################
 ## Miscellaneous
 ##############################
 .claude/*
