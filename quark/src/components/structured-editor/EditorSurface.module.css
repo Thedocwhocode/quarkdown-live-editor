@@ -5,7 +5,21 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
-  padding-bottom: 80px;
+  padding: 24px 32px 80px;
+  position: relative;
+}
+
+/* Empty canvas hint */
+.surface[data-empty="true"]::before {
+  content: 'Start writing, or type  /  for commands…';
+  position: absolute;
+  top: 24px;
+  left: 32px;
+  color: var(--text-muted);
+  font-size: var(--font-size-md);
+  pointer-events: none;
+  user-select: none;
+  opacity: 0.55;
 }
 
 .addBtn {

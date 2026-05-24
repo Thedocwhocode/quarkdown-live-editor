@@ -9,7 +9,6 @@ export function EditorSurface() {
   const { appendBlock, setSelectedBlockId, document } = useDocumentStore()
 
   function handleSurfaceClick(e: React.MouseEvent) {
-    // Click on empty space below blocks → deselect and add a paragraph
     if (e.target === e.currentTarget) {
       setSelectedBlockId(null)
     }
@@ -23,7 +22,11 @@ export function EditorSurface() {
   }
 
   return (
-    <div className={styles.surface} onClick={handleSurfaceClick}>
+    <div
+      className={styles.surface}
+      data-empty={blocks.every(b => b.kind === 'blank' || (b.kind === 'paragraph' && !b.content))}
+      onClick={handleSurfaceClick}
+    >
       {blocks.map((block) => (
         <BlockRenderer key={block.id} block={block} />
       ))}

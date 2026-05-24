@@ -1,4 +1,4 @@
-import { BookOpen, FileText, PenLine, Eye, Settings } from 'lucide-react'
+import { BookOpen, PenLine, Eye, Settings } from 'lucide-react'
 import css from './MobileBottomNav.module.css'
 
 export type MobilePanel = 'notes' | 'editor' | 'preview' | 'settings'
