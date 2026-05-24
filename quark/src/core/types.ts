@@ -30,7 +30,20 @@ export interface Notebook {
 export interface Tag {
   id: string
   name: string
+  noteCount: number
 }
+
+export interface Attachment {
+  id: string
+  noteId: string
+  kind: 'image' | 'pdf' | 'scan' | 'file'
+  path: string
+  mimeType: string
+  ocrText: string | null
+  createdAt: string
+}
+
+export type AppTheme = 'warm-paper' | 'red-graphite' | 'toothpaste' | 'solarized' | 'bear-dark'
 
 export interface Template {
   id: string
@@ -59,3 +72,8 @@ export interface ExportJob {
 }
 
 export type ViewMode = 'edit' | 'split' | 'preview'
+
+export interface ExportResult {
+  outputPath: string
+  format: string
+}

@@ -1,0 +1,117 @@
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.container {
+  background: var(--c-list-bg);
+  border-radius: var(--r-lg);
+  max-width: 400px;
+  width: calc(100% - 32px);
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--sp-4) var(--sp-5);
+  border-bottom: 1px solid var(--c-list-border);
+}
+
+.title {
+  font-size: var(--text-md);
+  font-weight: 600;
+  color: var(--c-list-title);
+}
+
+.closeBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--c-list-excerpt);
+  padding: var(--sp-1);
+  border-radius: var(--r-sm);
+}
+
+.closeBtn:hover {
+  color: var(--c-list-title);
+  background: var(--c-list-hover);
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  padding: var(--sp-4) var(--sp-5);
+}
+
+.formatBtn {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  width: 100%;
+  padding: var(--sp-3) var(--sp-4);
+  border: 1px solid var(--c-list-border);
+  border-radius: var(--r-md);
+  background: var(--c-editor-bg);
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.1s, border-color 0.1s;
+}
+
+.formatBtn:hover {
+  background: var(--c-list-active);
+  border-color: var(--c-accent);
+}
+
+.icon {
+  color: var(--c-accent);
+  flex-shrink: 0;
+}
+
+.formatText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.formatName {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--c-list-title);
+}
+
+.formatDesc {
+  font-size: var(--text-xs);
+  color: var(--c-list-excerpt);
+}
+
+.statusSuccess {
+  margin: 0 var(--sp-5) var(--sp-4);
+  padding: var(--sp-2) var(--sp-3);
+  border-radius: var(--r-sm);
+  font-size: var(--text-xs);
+  background: rgba(74, 155, 111, 0.12);
+  color: var(--c-success);
+}
+
+.statusError {
+  margin: 0 var(--sp-5) var(--sp-4);
+  padding: var(--sp-2) var(--sp-3);
+  border-radius: var(--r-sm);
+  font-size: var(--text-xs);
+  background: rgba(192, 57, 43, 0.1);
+  color: var(--c-error);
+}

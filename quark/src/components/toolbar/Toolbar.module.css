@@ -68,3 +68,6 @@
 .actionBtn:hover { background: var(--c-accent-faint); color: var(--c-editor-text); }
 .actionBtn:disabled { opacity: 0.5; cursor: not-allowed; }
 .actionBtn.danger:hover { background: rgba(192,57,43,0.12); color: var(--c-error); }
+
+.spinning { animation: spin 1s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }

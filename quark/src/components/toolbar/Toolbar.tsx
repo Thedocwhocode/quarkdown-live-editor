@@ -1,21 +1,40 @@
+import {
+  PenLine,
+  Columns2,
+  Eye,
+  Zap,
+  Loader2,
+  Pin,
+  PinOff,
+  Trash2,
+  LayoutTemplate,
+  Download,
+  Paperclip,
+} from 'lucide-react'
 import type { ViewMode } from '../../core/types'
 import { useNotesStore } from '../../features/notes/store'
 import css from './Toolbar.module.css'
 
-const VIEW_MODES: { mode: ViewMode; label: string; title: string }[] = [
-  { mode: 'edit',    label: '✏',  title: 'Edit mode' },
-  { mode: 'split',   label: '⊟',  title: 'Split view' },
-  { mode: 'preview', label: '👁', title: 'Preview mode' },
+interface Props {
+  onTemplateOpen: () => void
+  onExportOpen:   () => void
+  onAttachOpen:   () => void
+}
+
+const VIEW_MODES: { mode: ViewMode; icon: React.ReactNode; title: string }[] = [
+  { mode: 'edit',    icon: <PenLine  size={16} strokeWidth={1.8} />, title: 'Edit mode' },
+  { mode: 'split',   icon: <Columns2 size={16} strokeWidth={1.8} />, title: 'Split view' },
+  { mode: 'preview', icon: <Eye      size={16} strokeWidth={1.8} />, title: 'Preview mode' },
 ]
 
-export function Toolbar() {
-  const selectedNote  = useNotesStore(s => s.selectedNote())
-  const viewMode      = useNotesStore(s => s.viewMode)
-  const setViewMode   = useNotesStore(s => s.setViewMode)
-  const compileNote   = useNotesStore(s => s.compileNote)
-  const deleteNote    = useNotesStore(s => s.deleteNote)
-  const pinNote       = useNotesStore(s => s.pinNote)
-  const isCompiling   = useNotesStore(s => s.isCompiling)
+export function Toolbar({ onTemplateOpen, onExportOpen, onAttachOpen }: Props) {
+  const selectedNote = useNotesStore(s => s.selectedNote())
+  const viewMode     = useNotesStore(s => s.viewMode)
+  const setViewMode  = useNotesStore(s => s.setViewMode)
+  const compileNote  = useNotesStore(s => s.compileNote)
+  const deleteNote   = useNotesStore(s => s.deleteNote)
+  const pinNote      = useNotesStore(s => s.pinNote)
+  const isCompiling  = useNotesStore(s => s.isCompiling)
 
   const handleCompile = () => {
     if (selectedNote) compileNote(selectedNote.id)
@@ -43,7 +62,7 @@ export function Toolbar() {
 
       <div className={css.center}>
         <div className={css.viewToggle} role="group" aria-label="View mode">
-          {VIEW_MODES.map(({ mode, label, title }) => (
+          {VIEW_MODES.map(({ mode, icon, title }) => (
             <button
               key={mode}
               className={css.viewBtn}
@@ -51,7 +70,7 @@ export function Toolbar() {
               onClick={() => setViewMode(mode)}
               title={title}
             >
-              {label}
+              {icon}
             </button>
           ))}
         </div>
@@ -62,25 +81,52 @@ export function Toolbar() {
           <>
             <button
               className={css.actionBtn}
+              onClick={onTemplateOpen}
+              title="Templates"
+            >
+              <LayoutTemplate size={16} strokeWidth={1.8} />
+            </button>
+            <button
+              className={css.actionBtn}
+              onClick={onExportOpen}
+              title="Export note"
+            >
+              <Download size={16} strokeWidth={1.8} />
+            </button>
+            <button
+              className={css.actionBtn}
+              onClick={onAttachOpen}
+              title="Attachments"
+            >
+              <Paperclip size={16} strokeWidth={1.8} />
+            </button>
+            <button
+              className={css.actionBtn}
               onClick={handleCompile}
               disabled={isCompiling}
               title="Compile note (⌘R)"
             >
-              {isCompiling ? '…' : '⚡'}
+              {isCompiling
+                ? <Loader2 size={16} strokeWidth={1.8} className={css.spinning} />
+                : <Zap      size={16} strokeWidth={1.8} />
+              }
             </button>
             <button
               className={css.actionBtn}
               onClick={handlePin}
               title={selectedNote.isPinned ? 'Unpin' : 'Pin'}
             >
-              📌
+              {selectedNote.isPinned
+                ? <PinOff size={16} strokeWidth={1.8} />
+                : <Pin    size={16} strokeWidth={1.8} />
+              }
             </button>
             <button
               className={`${css.actionBtn} ${css.danger}`}
               onClick={handleDelete}
               title="Delete note"
             >
-              🗑
+              <Trash2 size={16} strokeWidth={1.8} />
             </button>
           </>
         )}

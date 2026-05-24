@@ -6,7 +6,7 @@
  */
 
 import { invoke } from '@tauri-apps/api/core'
-import type { CompileResult, Note, Notebook, Template } from './types'
+import type { Attachment, CompileResult, ExportResult, Note, Notebook, Tag, Template } from './types'
 
 export const notesApi = {
   list: (notebookId?: string) =>
@@ -35,6 +35,8 @@ export const notebooksApi = {
   list: () => invoke<Notebook[]>('list_notebooks'),
   create: (name: string, icon?: string, color?: string) =>
     invoke<Notebook>('create_notebook', { name, icon: icon ?? null, color: color ?? null }),
+  update: (id: string, name: string, icon?: string, color?: string) =>
+    invoke<Notebook>('update_notebook', { id, name, icon: icon ?? null, color: color ?? null }),
   delete: (id: string) => invoke<void>('delete_notebook', { id }),
 }
 
@@ -44,4 +46,23 @@ export const compileApi = {
 
 export const templatesApi = {
   list: () => invoke<Template[]>('list_templates'),
+}
+
+export const tagsApi = {
+  listAll: () => invoke<Tag[]>('list_all_tags'),
+  getNoteTags: (noteId: string) => invoke<Tag[]>('get_note_tags', { noteId }),
+  addToNote: (noteId: string, tagName: string) => invoke<Tag>('add_tag_to_note', { noteId, tagName }),
+  removeFromNote: (noteId: string, tagId: string) => invoke<void>('remove_tag_from_note', { noteId, tagId }),
+}
+
+export const attachmentsApi = {
+  list: (noteId: string) => invoke<Attachment[]>('list_attachments', { noteId }),
+  add: (noteId: string, path: string, kind: string, mimeType: string) =>
+    invoke<Attachment>('add_attachment', { noteId, path, kind, mimeType }),
+  delete: (id: string) => invoke<void>('delete_attachment', { id }),
+  setOcrText: (id: string, ocrText: string) => invoke<void>('set_ocr_text', { id, ocrText }),
+}
+
+export const exportApi = {
+  toTxt: (id: string, outputPath: string) => invoke<ExportResult>('export_note_txt', { id, outputPath }),
 }

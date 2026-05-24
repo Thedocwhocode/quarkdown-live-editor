@@ -67,4 +67,8 @@
   /* Shadows */
   --shadow-sm:  0 1px 3px rgba(0,0,0,0.08);
   --shadow-md:  0 2px 8px rgba(0,0,0,0.12);
+
+  /* Toolbar */
+  --c-toolbar-bg:     var(--c-list-bg);
+  --c-toolbar-border: var(--c-list-border);
 }

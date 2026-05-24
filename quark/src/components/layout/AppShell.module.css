@@ -49,3 +49,10 @@
   font-size: var(--text-sm);
   user-select: none;
 }
+
+.editorFlex {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden;
+}

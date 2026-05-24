@@ -1,0 +1,179 @@
+/**
+ * Quark Notes – additional color themes.
+ *
+ * The default "Warm Paper" theme is defined in tokens.css and requires no
+ * data-theme attribute.  Every other theme is applied by setting
+ * `data-theme="<id>"` on `<html>`.
+ *
+ * Each ruleset overrides every custom property declared in tokens.css plus
+ * the two toolbar additions introduced here so that no property is left
+ * unset when switching themes.
+ */
+
+/* ─── Red Graphite ────────────────────────────────────────────────────────── */
+[data-theme="red-graphite"] {
+  /* Sidebar */
+  --c-sidebar-bg:      #1a1214;
+  --c-sidebar-text:    #e8dce4;
+  --c-sidebar-muted:   #8a7882;
+  --c-sidebar-active:  #2e1e26;
+  --c-sidebar-hover:   #261820;
+  --c-sidebar-accent:  #c44569;
+  --c-sidebar-divider: #3a2830;
+
+  /* Note list */
+  --c-list-bg:     #241820;
+  --c-list-border: #3a2830;
+  --c-list-active: #342030;
+  --c-list-hover:  #2e1e28;
+  --c-list-title:  #f0e6ec;
+  --c-list-excerpt:#a08898;
+  --c-list-date:   #7a6070;
+
+  /* Editor */
+  --c-editor-bg:         #1e141a;
+  --c-editor-text:       #e8dce4;
+  --c-editor-caret:      #c44569;
+  --c-editor-selection:  rgba(196, 69, 105, 0.22);
+  --c-editor-line-hover: rgba(196, 69, 105, 0.05);
+
+  /* Accent */
+  --c-accent:       #c44569;
+  --c-accent-hover: #ad3558;
+  --c-accent-faint: rgba(196, 69, 105, 0.14);
+
+  /* Status */
+  --c-success: #4a9b6f;
+  --c-error:   #e05470;
+  --c-warning: #d4874a;
+
+  /* Toolbar */
+  --c-toolbar-bg:     #261820;
+  --c-toolbar-border: #3a2830;
+}
+
+/* ─── Toothpaste ──────────────────────────────────────────────────────────── */
+[data-theme="toothpaste"] {
+  /* Sidebar */
+  --c-sidebar-bg:      #1a3a4a;
+  --c-sidebar-text:    #c8e8f4;
+  --c-sidebar-muted:   #6aa0b8;
+  --c-sidebar-active:  #254e62;
+  --c-sidebar-hover:   #204558;
+  --c-sidebar-accent:  #2e9bba;
+  --c-sidebar-divider: #2a4e62;
+
+  /* Note list */
+  --c-list-bg:     #f0f8fc;
+  --c-list-border: #d0e8f2;
+  --c-list-active: #d8f0fa;
+  --c-list-hover:  #e4f4fc;
+  --c-list-title:  #0e2a38;
+  --c-list-excerpt:#4a7890;
+  --c-list-date:   #7aaabb;
+
+  /* Editor */
+  --c-editor-bg:         #f8feff;
+  --c-editor-text:       #1a3a4a;
+  --c-editor-caret:      #2e9bba;
+  --c-editor-selection:  rgba(46, 155, 186, 0.20);
+  --c-editor-line-hover: rgba(46, 155, 186, 0.04);
+
+  /* Accent */
+  --c-accent:       #2e9bba;
+  --c-accent-hover: #2285a0;
+  --c-accent-faint: rgba(46, 155, 186, 0.12);
+
+  /* Status */
+  --c-success: #2e9b6f;
+  --c-error:   #c44040;
+  --c-warning: #c48040;
+
+  /* Toolbar */
+  --c-toolbar-bg:     #e8f4fa;
+  --c-toolbar-border: #c4dcea;
+}
+
+/* ─── Solarized ───────────────────────────────────────────────────────────── */
+[data-theme="solarized"] {
+  /* Sidebar */
+  --c-sidebar-bg:      #073642;
+  --c-sidebar-text:    #93a1a1;
+  --c-sidebar-muted:   #586e75;
+  --c-sidebar-active:  #0a4452;
+  --c-sidebar-hover:   #0d3c4a;
+  --c-sidebar-accent:  #268bd2;
+  --c-sidebar-divider: #094e5e;
+
+  /* Note list */
+  --c-list-bg:     #eee8d5;
+  --c-list-border: #d8d2bf;
+  --c-list-active: #ddd6c2;
+  --c-list-hover:  #e5dfcc;
+  --c-list-title:  #073642;
+  --c-list-excerpt:#657b83;
+  --c-list-date:   #93a1a1;
+
+  /* Editor */
+  --c-editor-bg:         #fdf6e3;
+  --c-editor-text:       #657b83;
+  --c-editor-caret:      #268bd2;
+  --c-editor-selection:  rgba(38, 139, 210, 0.20);
+  --c-editor-line-hover: rgba(38, 139, 210, 0.05);
+
+  /* Accent */
+  --c-accent:       #268bd2;
+  --c-accent-hover: #1a7ab8;
+  --c-accent-faint: rgba(38, 139, 210, 0.12);
+
+  /* Status */
+  --c-success: #859900;
+  --c-error:   #dc322f;
+  --c-warning: #b58900;
+
+  /* Toolbar */
+  --c-toolbar-bg:     #e5dfcc;
+  --c-toolbar-border: #cec8b5;
+}
+
+/* ─── Bear Dark ───────────────────────────────────────────────────────────── */
+[data-theme="bear-dark"] {
+  /* Sidebar */
+  --c-sidebar-bg:      #1c1c1e;
+  --c-sidebar-text:    #e8e8ed;
+  --c-sidebar-muted:   #8e8e93;
+  --c-sidebar-active:  #2c2c2e;
+  --c-sidebar-hover:   #28282a;
+  --c-sidebar-accent:  #ff9f0a;
+  --c-sidebar-divider: #38383a;
+
+  /* Note list */
+  --c-list-bg:     #2c2c2e;
+  --c-list-border: #3a3a3c;
+  --c-list-active: #3a3a3c;
+  --c-list-hover:  #363638;
+  --c-list-title:  #f2f2f7;
+  --c-list-excerpt:#aeaeb2;
+  --c-list-date:   #8e8e93;
+
+  /* Editor */
+  --c-editor-bg:         #1c1c1e;
+  --c-editor-text:       #e8e8ed;
+  --c-editor-caret:      #ff9f0a;
+  --c-editor-selection:  rgba(255, 159, 10, 0.20);
+  --c-editor-line-hover: rgba(255, 159, 10, 0.04);
+
+  /* Accent */
+  --c-accent:       #ff9f0a;
+  --c-accent-hover: #e08c00;
+  --c-accent-faint: rgba(255, 159, 10, 0.14);
+
+  /* Status */
+  --c-success: #30d158;
+  --c-error:   #ff453a;
+  --c-warning: #ff9f0a;
+
+  /* Toolbar */
+  --c-toolbar-bg:     #252527;
+  --c-toolbar-border: #3a3a3c;
+}

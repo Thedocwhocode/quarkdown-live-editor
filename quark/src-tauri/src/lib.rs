@@ -44,8 +44,18 @@ pub fn run() {
             commands::notebooks::list_notebooks,
             commands::notebooks::create_notebook,
             commands::notebooks::delete_notebook,
+            commands::notebooks::update_notebook,
             commands::compile::compile_note,
             commands::templates::list_templates,
+            commands::tags::list_all_tags,
+            commands::tags::get_note_tags,
+            commands::tags::add_tag_to_note,
+            commands::tags::remove_tag_from_note,
+            commands::attachments::list_attachments,
+            commands::attachments::add_attachment,
+            commands::attachments::delete_attachment,
+            commands::attachments::set_ocr_text,
+            commands::export::export_note_txt,
         ])
         .run(tauri::generate_context!())
         .expect("error while running Quark");

@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useRef } from 'react'
 import type { Note } from '../../core/types'
 import { useNotesStore } from '../../features/notes/store'
 import css from './NoteList.module.css'
@@ -10,7 +10,7 @@ export function NoteList() {
   const search = useNotesStore(s => s.search)
   const searchQuery = useNotesStore(s => s.searchQuery)
   const setSearchQuery = useNotesStore(s => s.setSearchQuery)
-  const searchRef = useRef<ReturnType<typeof setTimeout>>()
+  const searchRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
 
   const handleSearch = (q: string) => {
     setSearchQuery(q)

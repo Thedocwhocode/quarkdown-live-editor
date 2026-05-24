@@ -9,6 +9,7 @@ interface NotebooksState {
   loadNotebooks: () => Promise<void>
   selectNotebook: (id: string | null) => void
   createNotebook: (name: string, icon?: string, color?: string) => Promise<Notebook>
+  updateNotebook: (id: string, name: string, icon?: string, color?: string) => Promise<Notebook>
   deleteNotebook: (id: string) => Promise<void>
 }
 
@@ -26,6 +27,12 @@ export const useNotebooksStore = create<NotebooksState>((set) => ({
   createNotebook: async (name, icon, color) => {
     const nb = await notebooksApi.create(name, icon, color)
     set(s => ({ notebooks: [...s.notebooks, nb] }))
+    return nb
+  },
+
+  updateNotebook: async (id, name, icon, color) => {
+    const nb = await notebooksApi.update(id, name, icon, color)
+    set(s => ({ notebooks: s.notebooks.map(n => (n.id === id ? nb : n)) }))
     return nb
   },
 

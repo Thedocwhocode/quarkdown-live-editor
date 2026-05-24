@@ -1,3 +1,4 @@
+/// <reference types="vitest/globals" />
 import '@testing-library/jest-dom'
 
 // Mock the entire @tauri-apps/api/core module so tests run without Tauri context.

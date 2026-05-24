@@ -1,0 +1,275 @@
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.container {
+  background: var(--c-list-bg);
+  border-radius: var(--r-lg);
+  max-width: 520px;
+  width: calc(100% - 32px);
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--sp-4) var(--sp-5);
+  border-bottom: 1px solid var(--c-list-border);
+  flex-shrink: 0;
+}
+
+.title {
+  font-size: var(--text-md);
+  font-weight: 600;
+  color: var(--c-list-title);
+}
+
+.closeBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--c-list-excerpt);
+  padding: var(--sp-1);
+  border-radius: var(--r-sm);
+}
+
+.closeBtn:hover {
+  color: var(--c-list-title);
+  background: var(--c-list-hover);
+}
+
+.tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--c-list-border);
+  flex-shrink: 0;
+}
+
+.tab {
+  padding: var(--sp-3) var(--sp-5);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--c-list-excerpt);
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  margin-bottom: -1px;
+  transition: color 0.1s, border-color 0.1s;
+}
+
+.tab:hover {
+  color: var(--c-list-title);
+}
+
+.tabActive {
+  color: var(--c-accent);
+  border-bottom-color: var(--c-accent);
+}
+
+.body {
+  overflow-y: auto;
+  padding: var(--sp-4) var(--sp-5);
+  flex: 1;
+}
+
+/* ── Themes tab ───────────────────────────────────────────────────────────── */
+
+.themeGrid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: var(--sp-3);
+}
+
+.themeCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-2);
+  background: none;
+  border: 2px solid transparent;
+  border-radius: var(--r-md);
+  padding: var(--sp-2);
+  cursor: pointer;
+  transition: border-color 0.1s;
+}
+
+.themeCard:hover {
+  border-color: var(--c-list-border);
+}
+
+.themeCardSelected {
+  border-color: var(--c-accent);
+}
+
+.themeSwatch {
+  position: relative;
+  width: 52px;
+  height: 40px;
+  border-radius: var(--r-sm);
+  border: 1.5px solid;
+  overflow: hidden;
+  display: flex;
+  align-items: flex-end;
+}
+
+.swatchAccent {
+  width: 100%;
+  height: 8px;
+}
+
+.checkOverlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.25);
+  color: #fff;
+}
+
+.themeLabel {
+  font-size: var(--text-xs);
+  color: var(--c-list-excerpt);
+  text-align: center;
+  white-space: nowrap;
+}
+
+/* ── Notebooks tab ────────────────────────────────────────────────────────── */
+
+.notebookList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+.emptyNote {
+  font-size: var(--text-sm);
+  color: var(--c-list-excerpt);
+}
+
+.notebookRow {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-2) var(--sp-3);
+  border: 1px solid var(--c-list-border);
+  border-radius: var(--r-md);
+  background: var(--c-editor-bg);
+}
+
+.notebookIconWrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.iconBtn {
+  font-size: 18px;
+  background: none;
+  border: 1px solid var(--c-list-border);
+  border-radius: var(--r-sm);
+  padding: 2px 4px;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.iconBtn:hover {
+  background: var(--c-list-hover);
+}
+
+.emojiPicker {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  z-index: 10;
+  background: var(--c-list-bg);
+  border: 1px solid var(--c-list-border);
+  border-radius: var(--r-md);
+  padding: var(--sp-2);
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: var(--sp-1);
+  box-shadow: var(--shadow-md);
+}
+
+.emojiOption {
+  font-size: 18px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: var(--sp-1);
+  border-radius: var(--r-sm);
+  line-height: 1;
+}
+
+.emojiOption:hover {
+  background: var(--c-list-hover);
+}
+
+.notebookNameInput {
+  flex: 1;
+  font-size: var(--text-sm);
+  color: var(--c-editor-text);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--r-sm);
+  padding: var(--sp-1) var(--sp-2);
+  outline: none;
+  min-width: 0;
+}
+
+.notebookNameInput:focus {
+  border-color: var(--c-accent);
+  background: var(--c-list-bg);
+}
+
+.colorRow {
+  display: flex;
+  gap: 5px;
+  flex-shrink: 0;
+}
+
+.colorSwatch {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  padding: 0;
+}
+
+.colorSwatchActive {
+  border-color: var(--c-editor-text);
+}
+
+.deleteNotebookBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--c-list-excerpt);
+  padding: var(--sp-1);
+  border-radius: var(--r-sm);
+  flex-shrink: 0;
+}
+
+.deleteNotebookBtn:hover {
+  color: var(--c-error);
+  background: rgba(192, 57, 43, 0.08);
+}

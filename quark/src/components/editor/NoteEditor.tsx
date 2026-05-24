@@ -17,7 +17,7 @@ const SAVE_DELAY = 600
 export function NoteEditor({ note }: Props) {
   const containerRef = useRef<HTMLDivElement>(null)
   const viewRef = useRef<EditorView | null>(null)
-  const saveTimerRef = useRef<ReturnType<typeof setTimeout>>()
+  const saveTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
   const suppressRef = useRef(false)
   const updateNote = useNotesStore(s => s.updateNote)
 

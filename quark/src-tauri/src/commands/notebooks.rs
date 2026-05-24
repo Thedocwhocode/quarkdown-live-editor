@@ -87,3 +87,45 @@ pub fn delete_notebook(state: State<'_, AppState>, id: String) -> Result<(), Str
         .map_err(|e| e.to_string())?;
     Ok(())
 }
+
+/// Updates a notebook's metadata and returns the refreshed record with its note count.
+#[tauri::command]
+pub fn update_notebook(
+    state: State<'_, AppState>,
+    id: String,
+    name: String,
+    icon: Option<String>,
+    color: Option<String>,
+) -> Result<Notebook, String> {
+    let db = state.db.lock().map_err(|e| e.to_string())?;
+    let now = Utc::now().to_rfc3339();
+
+    db.execute(
+        "UPDATE notebooks SET name=?1, icon=?2, color=?3, updated_at=?4 WHERE id=?5",
+        params![name, icon, color, now, id],
+    )
+    .map_err(|e| e.to_string())?;
+
+    db.query_row(
+        "SELECT n.id, n.name, n.icon, n.color, \
+         COUNT(notes.id) AS note_count, \
+         n.created_at, n.updated_at \
+         FROM notebooks n \
+         LEFT JOIN notes ON notes.notebook_id = n.id AND notes.status != 'archived' \
+         WHERE n.id = ?1 \
+         GROUP BY n.id",
+        params![id],
+        |row| {
+            Ok(Notebook {
+                id: row.get(0)?,
+                name: row.get(1)?,
+                icon: row.get(2)?,
+                color: row.get(3)?,
+                note_count: row.get(4)?,
+                created_at: row.get(5)?,
+                updated_at: row.get(6)?,
+            })
+        },
+    )
+    .map_err(|e| e.to_string())
+}
