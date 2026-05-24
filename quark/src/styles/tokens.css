@@ -1,0 +1,70 @@
+/* ── Quark design tokens — Bear-inspired warm palette ─────────────────────── */
+
+:root {
+  /* Sidebar (dark warm) */
+  --c-sidebar-bg:         #272220;
+  --c-sidebar-text:       #c8c0b8;
+  --c-sidebar-muted:      #7a7168;
+  --c-sidebar-active:     #3a3330;
+  --c-sidebar-hover:      #302c2a;
+  --c-sidebar-accent:     #d4774a;
+  --c-sidebar-divider:    #3e3835;
+
+  /* Note list (warm off-white) */
+  --c-list-bg:            #f3efe9;
+  --c-list-border:        #e6e0d8;
+  --c-list-active:        #e8e2da;
+  --c-list-hover:         #ece7e0;
+  --c-list-title:         #2a2520;
+  --c-list-excerpt:       #6e6661;
+  --c-list-date:          #9a9189;
+
+  /* Editor surface (clean warm white) */
+  --c-editor-bg:          #faf8f5;
+  --c-editor-text:        #2a2520;
+  --c-editor-caret:       #d4774a;
+  --c-editor-selection:   rgba(212, 119, 74, 0.18);
+  --c-editor-line-hover:  rgba(212, 119, 74, 0.04);
+
+  /* Global UI */
+  --c-accent:             #d4774a;
+  --c-accent-hover:       #be6840;
+  --c-accent-faint:       rgba(212, 119, 74, 0.12);
+  --c-success:            #4a9b6f;
+  --c-error:              #c0392b;
+  --c-warning:            #d68910;
+
+  /* Typography */
+  --font-ui:      -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, sans-serif;
+  --font-editor:  'iA Writer Quattro S', 'Roboto Mono', 'SF Mono', Menlo, monospace;
+  --font-preview: 'Georgia', 'Times New Roman', serif;
+
+  --text-xs:  11px;
+  --text-sm:  13px;
+  --text-md:  15px;
+  --text-lg:  17px;
+  --text-xl:  20px;
+
+  /* Spacing */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 20px;
+  --sp-6: 24px;
+  --sp-8: 32px;
+
+  /* Layout */
+  --sidebar-w:    200px;
+  --list-w:       280px;
+  --toolbar-h:    44px;
+
+  /* Radii */
+  --r-sm:  4px;
+  --r-md:  8px;
+  --r-lg:  14px;
+
+  /* Shadows */
+  --shadow-sm:  0 1px 3px rgba(0,0,0,0.08);
+  --shadow-md:  0 2px 8px rgba(0,0,0,0.12);
+}

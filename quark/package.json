@@ -1,0 +1,39 @@
+{
+  "name": "quark",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev":        "vite",
+    "build":      "tsc && vite build",
+    "preview":    "vite preview",
+    "test":       "vitest run",
+    "test:watch": "vitest",
+    "type-check": "tsc --noEmit",
+    "tauri":      "tauri"
+  },
+  "dependencies": {
+    "@tauri-apps/api":          "^2",
+    "@tauri-apps/plugin-shell": "^2",
+    "react":                    "^19",
+    "react-dom":                "^19",
+    "zustand":                  "^5",
+    "codemirror":               "^6",
+    "@codemirror/lang-markdown": "^6",
+    "@codemirror/view":         "^6",
+    "@codemirror/state":        "^6",
+    "@codemirror/theme-one-dark": "^6"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react":     "^4",
+    "@tauri-apps/cli":          "^2",
+    "typescript":               "^5",
+    "vite":                     "^6",
+    "vitest":                   "^2",
+    "@testing-library/react":   "^16",
+    "@testing-library/jest-dom": "^6",
+    "jsdom":                    "^25",
+    "@types/react":             "^19",
+    "@types/react-dom":         "^19"
+  }
+}

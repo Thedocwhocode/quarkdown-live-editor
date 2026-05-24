@@ -1,0 +1,16 @@
+.editor {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--c-editor-bg);
+}
+
+.cm {
+  flex: 1;
+  overflow: hidden;
+}
+
+.cm .cm-editor {
+  height: 100%;
+}
