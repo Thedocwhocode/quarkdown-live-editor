@@ -1,0 +1,137 @@
+NOTICE — Quarkdown Live Editor
+===============================
+
+This repository is a fork of the Quarkdown project.
+The code contained here is governed by two distinct copyrights.
+Both are licensed under the GNU General Public License v3.0 (GPLv3).
+See the LICENSE file at the root of this repository for the full license text.
+
+
+────────────────────────────────────────────────────────────────────────────────
+PART 1 — ORIGINAL QUARKDOWN CODE (upstream)
+────────────────────────────────────────────────────────────────────────────────
+
+  Project:   Quarkdown
+  Author:    Giorgio Garofalo <https://github.com/iamgio>
+  Source:    https://github.com/iamgio/quarkdown
+  Copyright: Copyright (C) 2025 Giorgio Garofalo
+  License:   GNU General Public License v3.0
+
+The following directories and files originate from the upstream Quarkdown
+project and have NOT been modified by this fork:
+
+  quarkdown-core/               Compiler core — parser, lexer, AST, pipeline
+  quarkdown-stdlib/             Standard library (native Kotlin functions)
+  quarkdown-html/               HTML rendering engine and TypeScript/SCSS front-end
+  quarkdown-cli/                Command-line interface
+  quarkdown-server/             Ktor-based web server for live preview
+  quarkdown-lsp/                Language Server Protocol implementation
+  quarkdown-plaintext/          Plain-text renderer
+  quarkdown-test/               Integration test suite
+  quarkdown-quarkdoc/           Documentation generation (Dokka v2 extensions)
+  quarkdown-quarkdoc-reader/    Documentation reader module
+  quarkdown-template/           Template rendering
+  quarkdown-libs/               Standard library .qd resource files
+  quarkdown-install-layout-navigator/   Runtime install layout navigator
+  quarkdown-interaction/        Interactive document components
+  docs/                         Official documentation (written in Quarkdown)
+  mock/                         Mock document showcasing all features
+  demo/                         Demo files
+  scripts/                      Build and bootstrap scripts
+  build.gradle.kts              Root Gradle build script
+  settings.gradle.kts           Gradle project settings
+  gradle.properties             Gradle properties
+  gradlew / gradlew.bat         Gradle wrapper
+  version.txt                   Version file
+  README.md                     Original project README
+  CONTRIBUTING.md               Original contribution guide
+  CHANGELOG.md                  Project changelog
+  LICENSE                       Full GPLv3 license text
+
+
+────────────────────────────────────────────────────────────────────────────────
+PART 2 — NEW EDITOR CODE (added in this fork)
+────────────────────────────────────────────────────────────────────────────────
+
+  Project:   Quarkdown Live Editor
+  Author:    Luiz Rodolfo (Thedocwhocode) <luizrodolfocc@gmail.com>
+  Source:    https://github.com/Thedocwhocode/quarkdown-live-editor
+  Copyright: Copyright (C) 2025 Luiz Rodolfo (Thedocwhocode)
+  License:   GNU General Public License v3.0
+
+The following directory was written from scratch for this fork and was NOT
+present in the upstream project:
+
+  editor/                       Structured live editor (React + TypeScript)
+    ├── server.ts               Node.js / Express compile proxy API
+    ├── src/core/ir/            Intermediate representation (IR/AST) types
+    ├── src/core/registry/      Quarkdown function registry (30+ stdlib entries)
+    ├── src/core/serializer/    Deterministic IR → .qd source serializer
+    ├── src/core/parser/        Best-effort .qd → IR parser
+    ├── src/core/compiler-adapter/   HTTP adapter to the compile API
+    ├── src/features/document/  Zustand document state store
+    ├── src/features/preview/   Preview orchestrator (debounce + compile)
+    ├── src/features/source-sync/    Bidirectional IR ↔ source sync
+    └── src/components/         React UI components
+          app-shell/            Three-panel shell layout
+          toolbar/              Quick-insert toolbar
+          block-library/        Searchable block catalog panel
+          editor-surface/       Block-based writing surface
+          document-setup/       Document metadata form
+          inspector/            Selection inspector panel
+          source-view/          CodeMirror 6 source editor panel
+          preview/              Live HTML preview pane (iframe)
+          diagnostics/          Compiler error display panel
+
+This editor code is a derivative work of Quarkdown. It integrates with the
+Quarkdown compiler by spawning the CLI as a subprocess through the Express
+proxy server. The IR, registry, serializer, and parser are original
+implementations written to interoperate with Quarkdown's syntax and stdlib.
+
+
+────────────────────────────────────────────────────────────────────────────────
+PART 3 — THIRD-PARTY DEPENDENCIES USED BY THE EDITOR
+────────────────────────────────────────────────────────────────────────────────
+
+The following open-source packages are used by the editor subproject (editor/).
+They are declared in editor/package.json and are installed separately via npm.
+None of these files are committed to this repository.
+
+  react                 ^19.1.0    MIT     https://github.com/facebook/react
+  react-dom             ^19.1.0    MIT     https://github.com/facebook/react
+  zustand               ^5.0.3     MIT     https://github.com/pmndrs/zustand
+  codemirror            ^6.0.2     MIT     https://github.com/codemirror/dev
+  @codemirror/state     ^6.4.1     MIT     https://github.com/codemirror/dev
+  @codemirror/view      ^6.35.3    MIT     https://github.com/codemirror/dev
+  @codemirror/commands  ^6.7.1     MIT     https://github.com/codemirror/dev
+  @codemirror/language  ^6.10.6    MIT     https://github.com/codemirror/dev
+  @codemirror/lang-markdown  ^6.3.1  MIT  https://github.com/codemirror/dev
+  @codemirror/theme-one-dark  ^6.1.2 MIT  https://github.com/codemirror/dev
+  @lezer/highlight      ^1.2.1     MIT     https://github.com/lezer-parser/highlight
+  express               ^5.1.0     MIT     https://github.com/expressjs/express
+
+Dev dependencies (not included in production builds):
+  typescript            ^5.8.3     Apache-2.0   https://github.com/microsoft/TypeScript
+  vite                  ^6.3.5     MIT          https://github.com/vitejs/vite
+  vitest                ^3.1.4     MIT          https://github.com/vitest-dev/vitest
+  @vitejs/plugin-react  ^4.4.1     MIT          https://github.com/vitejs/vite-plugin-react
+  tsx                   ^4.19.3    MIT          https://github.com/privatenumber/tsx
+  concurrently          ^9.1.2     MIT          https://github.com/open-cli-tools/concurrently
+
+Each dependency retains its original copyright and license. See the respective
+package repositories for full license texts.
+
+
+────────────────────────────────────────────────────────────────────────────────
+LICENSE SUMMARY
+────────────────────────────────────────────────────────────────────────────────
+
+All code in this repository — both the original Quarkdown source and the new
+editor code — is distributed under the GNU General Public License v3.0.
+
+You may copy, distribute and modify the software as long as you track changes
+and dates in source files. Any modifications to GPL-licensed code must also be
+made available under the GPL.
+
+  Full license text:  LICENSE (this repository root)
+  Online reference:   https://www.gnu.org/licenses/gpl-3.0.html
