@@ -1,0 +1,43 @@
+name: Editor CI
+
+on:
+  push:
+    branches: ["main", "claude/quarkdown-editor-mvp-peM7E"]
+    paths:
+      - "editor/**"
+      - ".github/workflows/editor-ci.yml"
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "editor/**"
+
+jobs:
+  test:
+    name: Type-check and unit tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: editor/package-lock.json
+
+      - name: Install dependencies
+        working-directory: editor
+        run: npm ci
+
+      - name: TypeScript type check
+        working-directory: editor
+        run: npx tsc --noEmit
+
+      - name: Run unit tests
+        working-directory: editor
+        run: npm test
+
+      - name: Production build
+        working-directory: editor
+        run: npm run build
