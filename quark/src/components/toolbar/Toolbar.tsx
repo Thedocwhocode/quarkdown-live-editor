@@ -2,6 +2,7 @@ import {
   PenLine,
   Columns2,
   Eye,
+  Blocks,
   Zap,
   Loader2,
   Pin,
@@ -22,9 +23,10 @@ interface Props {
 }
 
 const VIEW_MODES: { mode: ViewMode; icon: React.ReactNode; title: string }[] = [
-  { mode: 'edit',    icon: <PenLine  size={16} strokeWidth={1.8} />, title: 'Edit mode' },
-  { mode: 'split',   icon: <Columns2 size={16} strokeWidth={1.8} />, title: 'Split view' },
-  { mode: 'preview', icon: <Eye      size={16} strokeWidth={1.8} />, title: 'Preview mode' },
+  { mode: 'edit',       icon: <PenLine  size={16} strokeWidth={1.8} />, title: 'Raw editor' },
+  { mode: 'split',      icon: <Columns2 size={16} strokeWidth={1.8} />, title: 'Split view' },
+  { mode: 'preview',    icon: <Eye      size={16} strokeWidth={1.8} />, title: 'Preview' },
+  { mode: 'structured', icon: <Blocks   size={16} strokeWidth={1.8} />, title: 'Block editor' },
 ]
 
 export function Toolbar({ onTemplateOpen, onExportOpen, onAttachOpen }: Props) {

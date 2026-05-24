@@ -8,6 +8,7 @@ import { TemplatePickerModal } from '../templates/TemplatePickerModal'
 import { ExportModal } from '../export/ExportModal'
 import { AttachmentPanel } from '../attachments/AttachmentPanel'
 import { SettingsModal } from '../settings/SettingsModal'
+import { StructuredEditorPane } from '../structured-editor/StructuredEditorPane'
 import { useNotesStore } from '../../features/notes/store'
 import css from './AppShell.module.css'
 
@@ -40,6 +41,12 @@ export function AppShell() {
           />
 
           <div className={css.workspace} data-view={viewMode}>
+            {viewMode === 'structured' && (
+              selectedNote
+                ? <StructuredEditorPane note={selectedNote} />
+                : <Empty />
+            )}
+
             {(viewMode === 'edit' || viewMode === 'split') && (
               <div className={css.editorPane}>
                 <div className={css.editorFlex}>
@@ -54,6 +61,7 @@ export function AppShell() {
                 </div>
               </div>
             )}
+
             {(viewMode === 'preview' || viewMode === 'split') && (
               <div className={css.previewPane}>
                 <PreviewPane note={selectedNote} />

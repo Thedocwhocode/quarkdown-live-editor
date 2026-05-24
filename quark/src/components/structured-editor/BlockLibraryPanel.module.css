@@ -1,0 +1,63 @@
+.panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.search {
+  padding: var(--space-3);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.search input {
+  font-size: var(--font-size-sm);
+}
+
+.list {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--space-2) 0;
+}
+
+.group {
+  padding-bottom: var(--space-2);
+}
+
+.groupLabel {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  padding: var(--space-2) var(--space-4) var(--space-1);
+}
+
+.item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+  padding: var(--space-2) var(--space-4);
+  text-align: left;
+  transition: background var(--transition-fast);
+}
+
+.item:hover:not(:disabled) {
+  background: var(--bg-panel-hover);
+}
+
+.item:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.itemName {
+  font-family: var(--font-mono);
+  font-size: var(--font-size-xs);
+  color: var(--text-brand);
+}
+
+.itemLabel {
+  font-size: var(--font-size-xs);
+  color: var(--text-secondary);
+}

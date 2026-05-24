@@ -1,0 +1,57 @@
+/**
+ * CSS bridge: maps the standalone editor's design tokens to Quark's Bear-inspired
+ * palette. Imported once by StructuredEditorPane so all editor CSS modules
+ * resolve to the active Quark theme (including all 5 theme variants).
+ */
+:root {
+  /* Brand / accent */
+  --color-brand:       var(--c-accent);
+  --color-brand-hover: var(--c-accent-hover);
+
+  /* Backgrounds */
+  --bg-app:          var(--c-editor-bg);
+  --bg-panel:        var(--c-list-bg);
+  --bg-panel-hover:  var(--c-list-hover);
+  --bg-surface:      var(--c-editor-bg);
+  --bg-block:        var(--c-list-active);
+  --bg-block-selected: var(--c-accent-faint);
+  --bg-input:        var(--c-list-active);
+
+  /* Borders */
+  --border-subtle: var(--c-list-border);
+  --border-focus:  var(--c-accent);
+  --border-error:  var(--c-error);
+
+  /* Text */
+  --text-primary:   var(--c-editor-text);
+  --text-secondary: var(--c-list-excerpt);
+  --text-muted:     var(--c-list-date);
+  --text-brand:     var(--c-accent);
+  --text-error:     var(--c-error);
+  --text-success:   var(--c-success);
+
+  /* Radii — map to Quark tokens */
+  --radius-sm: var(--r-sm);
+  --radius-md: var(--r-md);
+  --radius-lg: var(--r-lg);
+
+  /* Spacing */
+  --space-1: var(--sp-1);
+  --space-2: var(--sp-2);
+  --space-3: var(--sp-3);
+  --space-4: var(--sp-4);
+  --space-5: var(--sp-5);
+  --space-6: var(--sp-6);
+
+  /* Typography */
+  --font-sans:     var(--font-ui);
+  --font-mono:     var(--font-editor);
+  --font-size-xs:  var(--text-xs);
+  --font-size-sm:  var(--text-sm);
+  --font-size-md:  var(--text-md);
+  --font-size-lg:  var(--text-lg);
+
+  /* Shadows (kept from Quark, same names happen to match) */
+  --transition-fast:   120ms ease;
+  --transition-medium: 200ms ease;
+}

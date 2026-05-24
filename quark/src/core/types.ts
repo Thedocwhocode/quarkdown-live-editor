@@ -71,7 +71,7 @@ export interface ExportJob {
   finishedAt: string | null
 }
 
-export type ViewMode = 'edit' | 'split' | 'preview'
+export type ViewMode = 'edit' | 'split' | 'preview' | 'structured'
 
 export interface ExportResult {
   outputPath: string
