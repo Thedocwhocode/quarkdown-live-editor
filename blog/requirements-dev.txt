@@ -1,5 +1,0 @@
--r requirements.txt
-pytest>=8.0
-pytest-django>=4.9
-coverage>=7.0
-factory-boy>=3.3
