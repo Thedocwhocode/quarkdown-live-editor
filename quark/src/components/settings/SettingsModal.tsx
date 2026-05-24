@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
-import { Check, X, Trash2 } from 'lucide-react'
+import { Check, X, Trash2, RefreshCw } from 'lucide-react'
 import { useThemesStore, THEMES } from '../../features/themes/store'
 import { useNotebooksStore } from '../../features/notebooks/store'
+import { useSyncStore } from '../../features/sync/store'
 import { settingsApi } from '../../core/invoke'
 import { DEFAULT_COMPILE_SERVER } from '../../features/compile/remoteCompile'
 import type { AppTheme } from '../../core/types'
@@ -13,7 +14,7 @@ interface Props {
   onClose: () => void
 }
 
-type Tab = 'themes' | 'notebooks' | 'server'
+type Tab = 'themes' | 'notebooks' | 'server' | 'sync'
 
 const THEME_SWATCHES: Record<AppTheme, { bg: string; accent: string }> = {
   'warm-paper':   { bg: '#faf8f5', accent: '#d4774a' },
@@ -299,6 +300,139 @@ function NotebooksTab() {
   )
 }
 
+function SyncTab() {
+  const { phase, lastSyncedAt, error, lastResult, sync, clearError } = useSyncStore()
+  const [syncUrl, setSyncUrl] = useState('')
+  const [token, setToken] = useState('')
+  const [urlError, setUrlError] = useState<string | null>(null)
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'ok'>('idle')
+
+  useEffect(() => {
+    Promise.all([
+      settingsApi.get('syncServerUrl'),
+      settingsApi.get('syncToken'),
+    ]).then(([url, tok]) => {
+      setSyncUrl(url ?? '')
+      setToken(tok ?? '')
+    }).catch(() => {})
+  }, [])
+
+  const validateUrl = (raw: string): boolean => {
+    if (!raw.trim()) { setUrlError(null); return true }
+    if (!isValidHttpUrl(raw.trim())) {
+      setUrlError('Enter a valid URL starting with http:// or https://')
+      return false
+    }
+    setUrlError(null)
+    return true
+  }
+
+  const saveCredentials = async () => {
+    if (!validateUrl(syncUrl)) return
+    setSaveStatus('saving')
+    try {
+      await Promise.all([
+        settingsApi.set('syncServerUrl', syncUrl.trim()),
+        settingsApi.set('syncToken', token.trim()),
+      ])
+      setSaveStatus('ok')
+      setTimeout(() => setSaveStatus('idle'), 2000)
+    } catch {
+      setSaveStatus('idle')
+    }
+  }
+
+  const isSyncing = phase === 'pushing' || phase === 'pulling'
+
+  const formattedLastSync = lastSyncedAt
+    ? new Date(lastSyncedAt).toLocaleString(undefined, { dateStyle: 'short', timeStyle: 'short' })
+    : null
+
+  return (
+    <div className={css.serverSection}>
+      <div>
+        <h3>Cloud Sync</h3>
+        <p>
+          Sync your notes across devices via a Quark Cloud server.
+          Enter your server URL and API token, then click Sync Now.
+        </p>
+      </div>
+
+      <div className={css.serverInputRow}>
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 4 }}>
+          <input
+            className={`${css.serverInput} ${urlError ? css.serverInputError : ''}`}
+            type="url"
+            value={syncUrl}
+            onChange={e => { setSyncUrl(e.target.value); validateUrl(e.target.value) }}
+            placeholder="https://your-quark-cloud.example.com"
+            spellCheck={false}
+            aria-label="Sync server URL"
+          />
+          {urlError && <span className={css.serverFieldError}>{urlError}</span>}
+        </div>
+      </div>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+        <input
+          className={css.serverInput}
+          type="password"
+          value={token}
+          onChange={e => setToken(e.target.value)}
+          placeholder="API token"
+          aria-label="Sync API token"
+        />
+      </div>
+
+      <div style={{ display: 'flex', gap: 'var(--sp-2)' }}>
+        <button
+          className={css.serverSaveBtn}
+          style={{ background: 'var(--c-list-hover)', color: 'var(--c-list-title)' }}
+          onClick={saveCredentials}
+          disabled={saveStatus === 'saving' || !!urlError}
+        >
+          {saveStatus === 'saving' ? 'Saving…' : saveStatus === 'ok' ? '✓ Saved' : 'Save'}
+        </button>
+        <button
+          className={css.serverSaveBtn}
+          onClick={sync}
+          disabled={isSyncing || !syncUrl.trim() || !token.trim()}
+        >
+          <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            <RefreshCw size={13} style={{ animation: isSyncing ? 'spin 1s linear infinite' : 'none' }} />
+            {isSyncing ? 'Syncing…' : 'Sync Now'}
+          </span>
+        </button>
+      </div>
+
+      {phase === 'error' && error && (
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 6 }}>
+          <span className={`${css.serverStatus} ${css.serverStatusError}`}>{error}</span>
+          <button
+            style={{ fontSize: 'var(--text-xs)', background: 'none', border: 'none', cursor: 'pointer', color: 'var(--c-list-excerpt)', padding: 0, textDecoration: 'underline' }}
+            onClick={clearError}
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
+
+      {lastResult && phase === 'idle' && !error && (
+        <span className={`${css.serverStatus} ${css.serverStatusOk}`}>
+          Synced {lastResult.pushed} pushed, {lastResult.pulled} pulled
+          {formattedLastSync ? ` — ${formattedLastSync}` : ''}
+        </span>
+      )}
+
+      {!lastResult && formattedLastSync && phase === 'idle' && (
+        <span className={css.serverStatus}>Last synced: {formattedLastSync}</span>
+      )}
+
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+    </div>
+  )
+}
+
 export function SettingsModal({ open, onClose }: Props) {
   const [activeTab, setActiveTab] = useState<Tab>('themes')
 
@@ -342,12 +476,19 @@ export function SettingsModal({ open, onClose }: Props) {
           >
             Server
           </button>
+          <button
+            className={`${css.tab} ${activeTab === 'sync' ? css.tabActive : ''}`}
+            onClick={() => setActiveTab('sync')}
+          >
+            Sync
+          </button>
         </div>
 
         <div className={css.body}>
           {activeTab === 'themes' && <ThemesTab />}
           {activeTab === 'notebooks' && <NotebooksTab />}
           {activeTab === 'server' && <ServerTab />}
+          {activeTab === 'sync' && <SyncTab />}
         </div>
       </div>
     </div>

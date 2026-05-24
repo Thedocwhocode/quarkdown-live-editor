@@ -77,3 +77,33 @@ export interface ExportResult {
   outputPath: string
   format: string
 }
+
+// ─── Cloud sync ──────────────────────────────────────────────────────────────
+
+/** Minimal note payload exchanged with the cloud sync API. */
+export interface SyncNote {
+  id: string
+  title: string
+  sourceQd: string
+  status: string
+  notebookId: string | null
+  isPinned: boolean
+  createdAt: string
+  updatedAt: string
+  syncVersion: number
+}
+
+/** Result returned by the `apply_pulled_notes` Rust command. */
+export interface ApplyResult {
+  applied: number
+  skipped: number
+}
+
+/** Per-run summary returned to the UI after a sync cycle completes. */
+export interface SyncResult {
+  pushed: number
+  pulled: number
+  syncedAt: string
+}
+
+export type SyncPhase = 'idle' | 'pushing' | 'pulling' | 'error'

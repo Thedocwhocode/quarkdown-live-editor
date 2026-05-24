@@ -60,6 +60,9 @@ pub fn run() {
             commands::export::export_note_txt,
             commands::settings::get_setting,
             commands::settings::set_setting,
+            commands::sync::get_dirty_notes,
+            commands::sync::mark_notes_synced,
+            commands::sync::apply_pulled_notes,
         ])
         .run(tauri::generate_context!())
         .expect("error while running Quark");

@@ -6,7 +6,7 @@
  */
 
 import { invoke } from '@tauri-apps/api/core'
-import type { Attachment, CompileResult, ExportResult, Note, Notebook, Tag, Template } from './types'
+import type { ApplyResult, Attachment, CompileResult, ExportResult, Note, Notebook, SyncNote, Tag, Template } from './types'
 
 export const notesApi = {
   list: (notebookId?: string) =>
@@ -70,4 +70,12 @@ export const exportApi = {
 export const settingsApi = {
   get: (key: string) => invoke<string | null>('get_setting', { key }),
   set: (key: string, value: string) => invoke<void>('set_setting', { key, value }),
+}
+
+export const syncApi = {
+  getDirtyNotes: () => invoke<SyncNote[]>('get_dirty_notes'),
+  markNotesSynced: (ids: string[], syncedAt: string) =>
+    invoke<void>('mark_notes_synced', { ids, syncedAt }),
+  applyPulledNotes: (items: SyncNote[], syncedAt: string) =>
+    invoke<ApplyResult>('apply_pulled_notes', { items, syncedAt }),
 }
