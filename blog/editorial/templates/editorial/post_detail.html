@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block title %}{{ post.title }} — Quarkdown Blog{% endblock %}
+
+{% block extra_head %}
+<meta name="author" content="{{ post.author.get_full_name|default:post.author.username }}">
+{% if post.compiled_excerpt %}
+  <meta name="description" content="{{ post.compiled_excerpt }}">
+{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="row">
+  <article class="col-lg-8 mx-auto">
+    <header class="mb-4">
+      <h1 class="fw-bold display-6">{{ post.title }}</h1>
+      <div class="text-muted d-flex gap-3 align-items-center flex-wrap mt-2">
+        <span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="me-1" viewBox="0 0 16 16">
+            <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4z"/>
+          </svg>
+          {{ post.author.get_full_name|default:post.author.username }}
+        </span>
+        <span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="me-1" viewBox="0 0 16 16">
+            <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5z"/>
+          </svg>
+          {{ post.published_at|date:"F j, Y" }}
+        </span>
+      </div>
+    </header>
+
+    <div class="qd-content">
+      {{ post.compiled_html|safe }}
+    </div>
+
+    <footer class="mt-5 pt-4 border-top text-muted small">
+      <a href="{% url 'editorial:post_list' %}" class="text-decoration-none text-secondary">
+        &larr; All posts
+      </a>
+    </footer>
+  </article>
+</div>
+{% endblock %}

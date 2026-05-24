@@ -1,0 +1,36 @@
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: quarkdown_blog
+      POSTGRES_USER: blog
+      POSTGRES_PASSWORD: blog
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  web:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      - db
+    environment:
+      DJANGO_SETTINGS_MODULE: quarkdown_blog.settings.development
+      SECRET_KEY: dev-insecure-key
+      DATABASE_URL: postgres://blog:blog@db:5432/quarkdown_blog
+      DEBUG: "True"
+    volumes:
+      - .:/app
+      - ../build/install/quarkdown:/quarkdown-dist:ro
+      - media_data:/app/media
+    ports:
+      - "8000:8000"
+    command: >
+      sh -c "python manage.py migrate &&
+             python manage.py runserver 0.0.0.0:8000"
+
+volumes:
+  postgres_data:
+  media_data:
