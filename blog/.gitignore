@@ -16,4 +16,3 @@ staticfiles/
 .coverage
 htmlcov/
 .pytest_cache/
-db.sqlite3
