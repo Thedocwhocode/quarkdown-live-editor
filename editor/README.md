@@ -226,6 +226,153 @@ npm run build
 
 ---
 
+## Deployment
+
+The editor has two distinct runtime components:
+
+| Component | Process | Port |
+|---|---|---|
+| Frontend (React) | Vite (dev) or static files (prod) | 5173 |
+| Compile API (Node.js/Express) | `server.ts` via `tsx` | 3001 |
+
+The compile API **must be co-located with a Java 21 runtime** because it spawns the Quarkdown JVM binary as a subprocess.
+This means pure static-file hosts (Vercel, Netlify, Cloudflare Pages) can only serve the frontend — the live-preview feature requires a separate backend process with Java available.
+
+---
+
+### Option A — Full-stack VPS via Dokploy (recommended)
+
+[Dokploy](https://dokploy.com) is an open-source self-hosted PaaS that manages Docker containers on your VPS from a web UI.
+This is the recommended path because it gives you the full editor with working live preview.
+
+#### 1. Create a `Dockerfile` at the repo root
+
+```dockerfile
+# ── Stage 1: build the Quarkdown CLI ──────────────────────────────────────────
+FROM eclipse-temurin:21-jdk-jammy AS jvm-build
+WORKDIR /build
+COPY . .
+RUN ./gradlew installDist --no-daemon -q
+
+# ── Stage 2: build the editor frontend ────────────────────────────────────────
+FROM node:20-slim AS node-build
+WORKDIR /app
+COPY editor/package*.json ./
+RUN npm ci
+COPY editor/ ./
+RUN npm run build
+
+# ── Stage 3: production image ─────────────────────────────────────────────────
+FROM eclipse-temurin:21-jre-jammy
+RUN apt-get update && apt-get install -y curl && \
+    curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
+    apt-get install -y nodejs && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# Copy Quarkdown CLI distribution
+COPY --from=jvm-build /build/build/install/quarkdown ./build/install/quarkdown
+
+# Copy editor sources (server.ts needs tsx)
+COPY editor/package*.json ./
+RUN npm ci --omit=dev
+COPY editor/server.ts ./
+COPY editor/tsconfig.json ./
+
+# Copy frontend static build
+COPY --from=node-build /app/dist ./dist
+
+# Serve the static build through the Express server as well
+ENV NODE_ENV=production
+EXPOSE 3001
+
+CMD ["npx", "tsx", "server.ts"]
+```
+
+> **Tip:** The production `server.ts` should serve the `dist/` folder as static files on port 3001 in addition to the `/api/*` routes, so a single container handles everything. Update `server.ts` to add:
+> ```typescript
+> import path from 'path'
+> if (process.env.NODE_ENV === 'production') {
+>   app.use(express.static(path.join(__dirname, 'dist')))
+>   app.get('*', (_req, res) =>
+>     res.sendFile(path.join(__dirname, 'dist', 'index.html'))
+>   )
+> }
+> ```
+
+#### 2. Configure Vite to point at the same origin in production
+
+In `vite.config.ts`, the `/api` proxy is only active in dev mode. For the production build, set `VITE_API_BASE` to an empty string so fetch calls go to `/api/compile` on the same origin:
+
+```typescript
+// vite.config.ts
+define: {
+  'import.meta.env.VITE_API_BASE': JSON.stringify(
+    process.env.NODE_ENV === 'production' ? '' : 'http://localhost:3001'
+  ),
+},
+```
+
+#### 3. Deploy with Dokploy
+
+1. Install Dokploy on your VPS by following the [official quickstart](https://docs.dokploy.com/docs/core).
+2. Open the Dokploy dashboard → **New Project** → **New Application**.
+3. Connect your GitHub repository (`Thedocwhocode/quarkdown-live-editor`).
+4. Set **Branch** to `main` (or your production branch) and **Build Type** to `Dockerfile`.
+5. Under **Network**, expose port `3001` and map it to the host port you want (e.g. `80` behind a reverse proxy, or `3001` directly).
+6. Click **Deploy**. Dokploy builds the Docker image and starts the container.
+7. Optionally configure a **Domain** in the Dokploy panel and enable **HTTPS** via Let's Encrypt — Dokploy handles the Traefik reverse proxy configuration automatically.
+
+After the first deploy, every push to the configured branch triggers an automatic rebuild.
+
+---
+
+### Option B — Vercel (frontend only)
+
+Vercel can host the static frontend build. The live-preview feature will be unavailable unless you also deploy the compile API somewhere that supports long-running processes and Java 21 (e.g. Railway, Render, or your own VPS).
+
+#### 1. Build and configure
+
+```bash
+cd editor
+npm run build          # produces editor/dist/
+```
+
+In your Vercel project settings:
+- **Framework Preset**: Vite
+- **Root Directory**: `editor`
+- **Build Command**: `npm run build`
+- **Output Directory**: `dist`
+
+#### 2. Point the frontend at an external API
+
+Set the following environment variable in the Vercel dashboard:
+
+```
+VITE_API_BASE=https://your-backend-host.example.com
+```
+
+Then update `editor/src/core/compiler-adapter/http.ts` (or wherever the base URL is configured) to read `import.meta.env.VITE_API_BASE`.
+
+#### 3. Deploy the compile API separately
+
+Deploy `server.ts` to any service that supports Node.js 20 + Java 21:
+
+| Service | Notes |
+|---|---|
+| **Railway** | Add a Dockerfile; set `PORT=3001` |
+| **Render** | Use the Docker runtime; set `PORT=3001` |
+| **Your own VPS** | Use Dokploy (see Option A above) |
+
+Make sure CORS is enabled in `server.ts` for the Vercel frontend origin:
+
+```typescript
+import cors from 'cors'
+app.use(cors({ origin: 'https://your-app.vercel.app' }))
+```
+
+---
+
 ## Contributing
 
 See [CONTRIBUTING.md](./CONTRIBUTING.md) for the editor-specific contribution guide,
