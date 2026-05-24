@@ -1,0 +1,94 @@
+.pane {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--bg-surface);
+}
+
+.statusBar {
+  display: flex;
+  align-items: center;
+  padding: var(--space-1) var(--space-3);
+  border-bottom: 1px solid var(--border-subtle);
+  min-height: 28px;
+  flex-shrink: 0;
+}
+
+.spinnerLabel {
+  font-size: var(--font-size-xs);
+  color: var(--text-muted);
+  animation: pulse 1s ease-in-out infinite;
+}
+
+.staleLabel {
+  font-size: var(--font-size-xs);
+  color: #f0b846;
+}
+
+.okLabel {
+  font-size: var(--font-size-xs);
+  color: var(--text-success);
+}
+
+.errorBar {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  background: rgba(224, 83, 83, 0.08);
+  border-bottom: 1px solid rgba(224, 83, 83, 0.3);
+  flex-shrink: 0;
+}
+
+.errorMsg {
+  font-size: var(--font-size-xs);
+  color: var(--text-error);
+  line-height: 1.4;
+  font-family: var(--font-mono);
+}
+
+.frame {
+  flex: 1;
+  border: none;
+  background: #fff;
+}
+
+.empty {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  font-size: var(--font-size-sm);
+}
+
+.notice {
+  padding: var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.noticeTitle {
+  font-weight: 600;
+  color: #f0b846;
+}
+
+.noticeBody {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.noticeBody code {
+  font-family: var(--font-mono);
+  background: var(--bg-block);
+  padding: 1px 4px;
+  border-radius: 2px;
+  font-size: var(--font-size-xs);
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
