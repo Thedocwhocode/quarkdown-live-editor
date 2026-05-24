@@ -197,13 +197,50 @@ npm run tauri dev
 
 Starts Vite on port 5173 and opens the Tauri desktop window with hot-module reload.
 
-### 4 — Production build
+### 4 — Production build (desktop)
 
 ```bash
 npm run tauri build
 ```
 
 The installer is written to `src-tauri/target/release/bundle/`.
+
+### 5 — Android build
+
+> Requires [Android Studio](https://developer.android.com/studio), NDK, and SDK (API 24+).
+
+```bash
+# One-time project init (run from quark/)
+npm run tauri android init
+
+# Development (hot-reload over USB/emulator)
+npm run tauri android dev
+
+# Production APK / AAB
+npm run tauri android build
+```
+
+The APK is written to `src-tauri/gen/android/app/build/outputs/apk/`.
+
+On Android, compilation runs remotely via the configured Quark Cloud server URL
+(Settings → Server). The local Quarkdown CLI is not available on mobile.
+
+### 6 — iOS build
+
+> Requires macOS, Xcode 15+, and an Apple Developer account (for device deployment).
+
+```bash
+# One-time project init (run from quark/ on macOS)
+npm run tauri ios init
+
+# Development (Simulator or device)
+npm run tauri ios dev
+
+# Production IPA
+npm run tauri ios build
+```
+
+The IPA is written to `src-tauri/gen/apple/build/arm64/`.
 
 ---
 
@@ -231,28 +268,33 @@ quark/
 │       │   │                        delete_attachment, set_ocr_text
 │       │   ├── compile.rs           compile_note (spawns Quarkdown CLI)
 │       │   ├── export.rs            export_note_txt (strips markup → plain text)
+│       │   ├── settings.rs          get_setting, set_setting (key-value store)
 │       │   └── templates.rs         list_templates (6 built-in seeds)
 │       └── db/
 │           ├── mod.rs               init(), WAL + FK pragmas, migrations
-│           └── schema.sql           notes, notebooks, tags, note_tags, attachments
+│           └── schema.sql           notes, notebooks, tags, note_tags, attachments,
+│                                    settings
 └── src/                             React / TypeScript frontend
     ├── core/
     │   ├── types.ts                 Note, Notebook, Tag, Attachment, Template,
     │   │                            CompileResult, AppTheme, ViewMode
     │   └── invoke.ts                Typed wrappers: notesApi, notebooksApi,
     │                                tagsApi, attachmentsApi, compileApi,
-    │                                templatesApi, exportApi
+    │                                templatesApi, exportApi, settingsApi
     ├── features/
     │   ├── notes/store.ts           Zustand: notes, selectedNoteId, viewMode
     │   ├── notebooks/store.ts       Zustand: notebooks, selectedNotebookId
     │   ├── tags/store.ts            Zustand: allTags, noteTags, selectedTagId
     │   ├── themes/store.ts          Zustand: theme, setTheme (localStorage persist)
+    │   ├── compile/
+    │   │   └── remoteCompile.ts     fetch-based compile for Android + iOS
     │   └── templates/catalog.ts    BUILT_IN_TEMPLATES (frontend copy)
     ├── components/
     │   ├── layout/
-    │   │   ├── AppShell.tsx         3-panel shell; modal state orchestration
+    │   │   ├── AppShell.tsx         3-panel shell; modal state; mobile routing
     │   │   ├── Sidebar.tsx          Notebooks + Tags nav; Settings button
-    │   │   └── NoteList.tsx         Searchable note cards with status dots
+    │   │   ├── NoteList.tsx         Searchable note cards with status dots
+    │   │   └── MobileBottomNav.tsx  Bottom tab bar (Android + iOS)
     │   ├── editor/
     │   │   └── NoteEditor.tsx       CodeMirror 6, auto-save, suppress-loop guard
     │   ├── preview/
@@ -270,10 +312,13 @@ quark/
     │   │   └── AttachmentPanel.tsx  File grid, Tauri dialog, Tesseract.js OCR
     │   └── settings/
     │       └── SettingsModal.tsx    Theme picker + Notebook editor (icon, color)
+    ├── utils/
+    │   └── platform.ts              Detect 'android' | 'ios' | 'desktop' at runtime
     └── styles/
         ├── tokens.css               Bear-inspired warm palette, spacing, typography
         ├── themes.css               4 additional themes via [data-theme] attribute
-        └── globals.css              Reset + base styles
+        ├── mobile.css               Responsive layout (≤768 px), bottom nav, safe areas
+        └── globals.css              Reset + base styles + mobile import
 ```
 
 </details>
@@ -295,6 +340,7 @@ Notebook ──── Note ──── NoteTag ──── Tag
 | `tags` | Normalized tag names (unique, lowercase) |
 | `note_tags` | Many-to-many join: note ↔ tag |
 | `attachments` | File paths, MIME type, OCR text, kind discriminator |
+| `settings` | Key-value store for user preferences (compile server URL, etc.) |
 
 ---
 
@@ -331,6 +377,7 @@ npm run type-check   # TypeScript strict check without emitting
 | 4 — Attachments & OCR | ✅ | File attach, image thumbnails, Tesseract.js OCR |
 | 5 — Export | ✅ | TXT (Rust), PDF (print), JPG (html2canvas) |
 | 6 — Structured Editor | 🔜 | Integrate the React block editor from the `editor/` subproject |
+| 7 — Mobile (Android + iOS) | ✅ | Tauri 2 mobile target; remote compile via Quark Cloud; responsive layout |
 
 ---
 

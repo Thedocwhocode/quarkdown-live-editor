@@ -46,6 +46,11 @@ CREATE TABLE IF NOT EXISTS attachments (
     created_at  TEXT NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS settings (
+    key    TEXT PRIMARY KEY,
+    value  TEXT NOT NULL
+);
+
 -- Indices for common access patterns
 CREATE INDEX IF NOT EXISTS idx_notes_notebook  ON notes (notebook_id);
 CREATE INDEX IF NOT EXISTS idx_notes_status    ON notes (status);

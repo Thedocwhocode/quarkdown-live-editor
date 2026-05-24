@@ -66,3 +66,8 @@ export const attachmentsApi = {
 export const exportApi = {
   toTxt: (id: string, outputPath: string) => invoke<ExportResult>('export_note_txt', { id, outputPath }),
 }
+
+export const settingsApi = {
+  get: (key: string) => invoke<string | null>('get_setting', { key }),
+  set: (key: string, value: string) => invoke<void>('set_setting', { key, value }),
+}

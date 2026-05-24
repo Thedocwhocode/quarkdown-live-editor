@@ -1,5 +1,7 @@
 import { create } from 'zustand'
 import { compileApi, notesApi } from '../../core/invoke'
+import { getPlatform, isMobilePlatform } from '../../utils/platform'
+import { remoteCompile } from '../compile/remoteCompile'
 import type { CompileResult, Note, ViewMode } from '../../core/types'
 
 interface NotesState {
@@ -77,7 +79,19 @@ export const useNotesStore = create<NotesState>((set, get) => ({
   compileNote: async (id) => {
     set({ isCompiling: true })
     try {
-      const result = await compileApi.compile(id)
+      const platform = await getPlatform()
+      let result: CompileResult
+
+      if (isMobilePlatform(platform)) {
+        // On mobile the JVM CLI is unavailable — compile via remote HTTP endpoint
+        const note = get().notes.find(n => n.id === id)
+        result = note
+          ? await remoteCompile(note.sourceQd)
+          : { success: false, html: null, error: 'Note not found', warnings: [] }
+      } else {
+        result = await compileApi.compile(id)
+      }
+
       if (result.success && result.html) {
         set(s => ({
           notes: s.notes.map(n =>

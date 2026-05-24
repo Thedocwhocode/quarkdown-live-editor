@@ -1,0 +1,117 @@
+/**
+ * Mobile layout overrides (Android + iOS).
+ *
+ * Applied when the viewport width is ≤ 768 px.
+ * Collapses the 3-column desktop layout to a single-panel + bottom tab bar.
+ */
+
+/* ── Bottom nav bar ── */
+.mobileNav {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 56px;
+  background: var(--c-list-bg);
+  border-top: 1px solid var(--c-list-border);
+  z-index: 200;
+  flex-direction: row;
+  align-items: stretch;
+
+  /* Safe area padding for iOS home indicator */
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+
+.mobileNav__btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--c-list-excerpt);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  transition: color 0.12s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.mobileNav__btn[data-active="true"] {
+  color: var(--c-accent);
+}
+
+.mobileNav__btn svg {
+  display: block;
+}
+
+/* ── Responsive breakpoint ── */
+@media (max-width: 768px) {
+  /* Show bottom nav */
+  .mobileNav { display: flex; }
+
+  /* Shell becomes a single full-height column */
+  .shell {
+    flex-direction: column;
+    height: 100dvh;
+  }
+
+  /* Hide the desktop sidebar and note list on mobile */
+  .desktopSidebar,
+  .noteList {
+    display: none !important;
+  }
+
+  /* Center panel (main workspace) takes full width */
+  .center {
+    flex: 1;
+    overflow: hidden;
+    padding-bottom: calc(56px + env(safe-area-inset-bottom, 0));
+  }
+
+  /* Toolbar gets larger touch targets */
+  .toolbar {
+    height: 52px;
+    padding: 0 var(--sp-3);
+  }
+
+  .viewBtn,
+  .actionBtn {
+    width: 40px;
+    height: 40px;
+  }
+
+  /* Editor pane fills available height */
+  .workspace {
+    height: calc(100dvh - 52px - 56px - env(safe-area-inset-bottom, 0));
+  }
+
+  /* NoteList panel becomes a full-screen overlay on mobile */
+  .noteListOverlay {
+    position: fixed;
+    inset: 0;
+    bottom: calc(56px + env(safe-area-inset-bottom, 0));
+    background: var(--c-list-bg);
+    z-index: 150;
+    overflow-y: auto;
+  }
+
+  /* Typography scale-up for readability */
+  .editorPane {
+    font-size: 16px; /* prevents iOS auto-zoom on focus */
+  }
+}
+
+/* ── Notch / status bar padding (iOS) ── */
+@supports (padding-top: env(safe-area-inset-top)) {
+  @media (max-width: 768px) {
+    .toolbar {
+      padding-top: env(safe-area-inset-top, 0);
+      height: calc(52px + env(safe-area-inset-top, 0));
+    }
+  }
+}

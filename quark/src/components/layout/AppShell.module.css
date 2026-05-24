@@ -1,6 +1,6 @@
 .shell {
   display: flex;
-  height: 100vh;
+  height: 100dvh;
   overflow: hidden;
 }
 
@@ -8,6 +8,16 @@
   flex: 1;
   display: flex;
   overflow: hidden;
+}
+
+/* Mobile: pad the center so content is not hidden behind the bottom nav */
+@media (max-width: 768px) {
+  .shell {
+    flex-direction: column;
+  }
+  .center {
+    padding-bottom: calc(56px + env(safe-area-inset-bottom, 0));
+  }
 }
 
 .main {

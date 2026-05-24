@@ -273,3 +273,71 @@
   color: var(--c-error);
   background: rgba(192, 57, 43, 0.08);
 }
+
+/* ── Server tab ───────────────────────────────────────────────────────────── */
+
+.serverSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+}
+
+.serverSection h3 {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--c-list-title);
+  margin: 0;
+}
+
+.serverSection p {
+  font-size: var(--text-sm);
+  color: var(--c-list-excerpt);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.serverInputRow {
+  display: flex;
+  gap: var(--sp-2);
+  align-items: center;
+}
+
+.serverInput {
+  flex: 1;
+  font-size: var(--text-sm);
+  color: var(--c-editor-text);
+  background: var(--c-editor-bg);
+  border: 1px solid var(--c-list-border);
+  border-radius: var(--r-sm);
+  padding: var(--sp-2) var(--sp-3);
+  outline: none;
+  font-family: var(--font-mono, monospace);
+}
+
+.serverInput:focus {
+  border-color: var(--c-accent);
+}
+
+.serverSaveBtn {
+  padding: var(--sp-2) var(--sp-4);
+  background: var(--c-accent);
+  color: #fff;
+  border: none;
+  border-radius: var(--r-sm);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: opacity 0.1s;
+}
+
+.serverSaveBtn:hover { opacity: 0.88; }
+.serverSaveBtn:disabled { opacity: 0.5; cursor: default; }
+
+.serverStatus {
+  font-size: var(--text-xs);
+  color: var(--c-list-excerpt);
+}
+
+.serverStatusOk   { color: #4a9b6f; }
+.serverStatusError { color: var(--c-error); }

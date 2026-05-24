@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from 'react'
 import { Check, X, Trash2 } from 'lucide-react'
 import { useThemesStore, THEMES } from '../../features/themes/store'
 import { useNotebooksStore } from '../../features/notebooks/store'
+import { settingsApi } from '../../core/invoke'
+import { DEFAULT_COMPILE_SERVER } from '../../features/compile/remoteCompile'
 import type { AppTheme } from '../../core/types'
 import type { Notebook } from '../../core/types'
 import css from './SettingsModal.module.css'
@@ -11,7 +13,7 @@ interface Props {
   onClose: () => void
 }
 
-type Tab = 'themes' | 'notebooks'
+type Tab = 'themes' | 'notebooks' | 'server'
 
 const THEME_SWATCHES: Record<AppTheme, { bg: string; accent: string }> = {
   'warm-paper':   { bg: '#faf8f5', accent: '#d4774a' },
@@ -152,6 +154,77 @@ function NotebookRow({ notebook, onUpdate, onDelete }: NotebookRowProps) {
   )
 }
 
+function ServerTab() {
+  const [url, setUrl] = useState('')
+  const [status, setStatus] = useState<'idle' | 'saving' | 'ok' | 'error'>('idle')
+  const [ping, setPing] = useState<'idle' | 'checking' | 'ok' | 'error'>('idle')
+
+  useEffect(() => {
+    settingsApi.get('compileServerUrl').then(v => setUrl(v ?? DEFAULT_COMPILE_SERVER)).catch(() => {})
+  }, [])
+
+  const save = async () => {
+    setStatus('saving')
+    try {
+      await settingsApi.set('compileServerUrl', url.trim() || DEFAULT_COMPILE_SERVER)
+      setStatus('ok')
+      setTimeout(() => setStatus('idle'), 2000)
+    } catch {
+      setStatus('error')
+    }
+  }
+
+  const testConnection = async () => {
+    setPing('checking')
+    try {
+      const res = await fetch(`${url.trim()}/api/health`, { signal: AbortSignal.timeout(5000) })
+      setPing(res.ok ? 'ok' : 'error')
+    } catch {
+      setPing('error')
+    }
+    setTimeout(() => setPing('idle'), 4000)
+  }
+
+  return (
+    <div className={css.serverSection}>
+      <div>
+        <h3>Compile Server</h3>
+        <p>
+          On Android and iOS the Quarkdown compiler runs remotely.
+          Enter the URL of your self-hosted Quark Cloud server, or use the default hosted service.
+        </p>
+      </div>
+
+      <div className={css.serverInputRow}>
+        <input
+          className={css.serverInput}
+          type="url"
+          value={url}
+          onChange={e => setUrl(e.target.value)}
+          placeholder={DEFAULT_COMPILE_SERVER}
+          spellCheck={false}
+        />
+        <button className={css.serverSaveBtn} onClick={save} disabled={status === 'saving'}>
+          {status === 'saving' ? 'Saving…' : status === 'ok' ? 'Saved' : 'Save'}
+        </button>
+      </div>
+
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        <button className={css.serverSaveBtn} style={{ background: 'var(--c-list-hover)', color: 'var(--c-list-title)' }} onClick={testConnection} disabled={ping === 'checking'}>
+          {ping === 'checking' ? 'Testing…' : 'Test connection'}
+        </button>
+        {ping === 'ok' && <span className={`${css.serverStatus} ${css.serverStatusOk}`}>Server reachable</span>}
+        {ping === 'error' && <span className={`${css.serverStatus} ${css.serverStatusError}`}>Could not reach server</span>}
+      </div>
+
+      <p style={{ fontSize: 'var(--text-xs)', marginTop: 8 }}>
+        <strong>Self-host:</strong> run <code>docker compose up</code> from the <code>cloud/</code> directory,
+        then set this URL to your server&apos;s public address.
+      </p>
+    </div>
+  )
+}
+
 function NotebooksTab() {
   const notebooks = useNotebooksStore(s => s.notebooks)
   const updateNotebook = useNotebooksStore(s => s.updateNotebook)
@@ -216,10 +289,18 @@ export function SettingsModal({ open, onClose }: Props) {
           >
             Notebooks
           </button>
+          <button
+            className={`${css.tab} ${activeTab === 'server' ? css.tabActive : ''}`}
+            onClick={() => setActiveTab('server')}
+          >
+            Server
+          </button>
         </div>
 
         <div className={css.body}>
-          {activeTab === 'themes' ? <ThemesTab /> : <NotebooksTab />}
+          {activeTab === 'themes' && <ThemesTab />}
+          {activeTab === 'notebooks' && <NotebooksTab />}
+          {activeTab === 'server' && <ServerTab />}
         </div>
       </div>
     </div>
