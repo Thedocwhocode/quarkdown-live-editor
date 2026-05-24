@@ -24,6 +24,10 @@ Write with ease. Structure without pain. Preview with beauty.
 
 <br>
 
+**🇺🇸 English** · [🇧🇷 Português](README-pt.md)
+
+<br>
+
 </div>
 
 ---
@@ -73,15 +77,16 @@ All data is stored locally. Nothing leaves your machine.
 
 **Writing**
 - CodeMirror 6 editor with Quarkdown syntax
-- `.functions`, named args, indented body blocks
+- Notion-style slash menu (`/`) — inserts blocks and functions
+- Floating format toolbar (bold, italic, link, headings, quote)
 - Auto-save with 600 ms debounce
-- Bear-like keyboard shortcuts
+- Keyboard shortcuts: Ctrl+B (bold), Ctrl+I (italic), Ctrl+K (code)
 
 **Preview**
 - One-click Quarkdown → HTML compilation
 - Live iframe preview (no page reload)
 - Split view: write and preview simultaneously
-- Compilation errors shown inline
+- Compilation errors and warnings shown inline
 
 </td>
 <td width="50%" valign="top">
@@ -376,8 +381,9 @@ npm run type-check   # TypeScript strict check without emitting
 | 3 — Templates | ✅ | Template picker modal, new-from-template (6 built-in) |
 | 4 — Attachments & OCR | ✅ | File attach, image thumbnails, Tesseract.js OCR |
 | 5 — Export | ✅ | TXT (Rust), PDF (print), JPG (html2canvas) |
-| 6 — Structured Editor | 🔜 | Integrate the React block editor from the `editor/` subproject |
+| 6 — Structured Editor | ✅ | React block editor; Notion-like slash menu; bubble format toolbar |
 | 7 — Mobile (Android + iOS) | ✅ | Tauri 2 mobile target; remote compile via Quark Cloud; responsive layout |
+| 8 — Cloud Sync | 🔜 | Cross-device sync with conflict resolution |
 
 ---
 

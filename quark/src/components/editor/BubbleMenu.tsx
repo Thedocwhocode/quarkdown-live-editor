@@ -94,13 +94,13 @@ export function BubbleMenu({ anchorRect, onFormat }: Props) {
         </div>
       ) : (
         <>
-          <button className={css.btn} onMouseDown={() => onFormat('bold')} title="Bold (Ctrl+B)">
+          <button className={css.btn} onMouseDown={() => onFormat('bold')} title="Bold (Ctrl+B / ⌘B)">
             <Bold size={13} strokeWidth={2.2} />
           </button>
-          <button className={css.btn} onMouseDown={() => onFormat('italic')} title="Italic (Ctrl+I)">
+          <button className={css.btn} onMouseDown={() => onFormat('italic')} title="Italic (Ctrl+I / ⌘I)">
             <Italic size={13} strokeWidth={2.2} />
           </button>
-          <button className={css.btn} onMouseDown={() => onFormat('code')} title="Inline code">
+          <button className={css.btn} onMouseDown={() => onFormat('code')} title="Inline code (Ctrl+K / ⌘K)">
             <Code size={13} strokeWidth={2.2} />
           </button>
           <button

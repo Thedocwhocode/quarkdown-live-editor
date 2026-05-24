@@ -154,19 +154,46 @@ function NotebookRow({ notebook, onUpdate, onDelete }: NotebookRowProps) {
   )
 }
 
+function isValidHttpUrl(raw: string): boolean {
+  try {
+    const u = new URL(raw)
+    return u.protocol === 'http:' || u.protocol === 'https:'
+  } catch {
+    return false
+  }
+}
+
 function ServerTab() {
   const [url, setUrl] = useState('')
+  const [urlError, setUrlError] = useState<string | null>(null)
   const [status, setStatus] = useState<'idle' | 'saving' | 'ok' | 'error'>('idle')
   const [ping, setPing] = useState<'idle' | 'checking' | 'ok' | 'error'>('idle')
+  const [pingMsg, setPingMsg] = useState('')
 
   useEffect(() => {
     settingsApi.get('compileServerUrl').then(v => setUrl(v ?? DEFAULT_COMPILE_SERVER)).catch(() => {})
   }, [])
 
+  const validateUrl = (raw: string): boolean => {
+    const trimmed = raw.trim()
+    if (!trimmed) {
+      setUrlError(null)
+      return true
+    }
+    if (!isValidHttpUrl(trimmed)) {
+      setUrlError('Enter a valid URL starting with http:// or https://')
+      return false
+    }
+    setUrlError(null)
+    return true
+  }
+
   const save = async () => {
+    const trimmed = url.trim()
+    if (!validateUrl(trimmed)) return
     setStatus('saving')
     try {
-      await settingsApi.set('compileServerUrl', url.trim() || DEFAULT_COMPILE_SERVER)
+      await settingsApi.set('compileServerUrl', trimmed || DEFAULT_COMPILE_SERVER)
       setStatus('ok')
       setTimeout(() => setStatus('idle'), 2000)
     } catch {
@@ -175,14 +202,26 @@ function ServerTab() {
   }
 
   const testConnection = async () => {
+    const trimmed = url.trim()
+    if (!validateUrl(trimmed)) return
+    const target = trimmed || DEFAULT_COMPILE_SERVER
     setPing('checking')
+    setPingMsg('')
     try {
-      const res = await fetch(`${url.trim()}/api/health`, { signal: AbortSignal.timeout(5000) })
-      setPing(res.ok ? 'ok' : 'error')
-    } catch {
+      const res = await fetch(`${target}/api/health`, { signal: AbortSignal.timeout(5000) })
+      if (res.ok) {
+        setPing('ok')
+        setPingMsg('Server reachable')
+      } else {
+        setPing('error')
+        setPingMsg(`Server returned HTTP ${res.status}`)
+      }
+    } catch (e) {
       setPing('error')
+      const msg = e instanceof TypeError ? 'Network error — check URL and firewall' : String(e)
+      setPingMsg(msg)
     }
-    setTimeout(() => setPing('idle'), 4000)
+    setTimeout(() => { setPing('idle'); setPingMsg('') }, 6000)
   }
 
   return (
@@ -196,25 +235,33 @@ function ServerTab() {
       </div>
 
       <div className={css.serverInputRow}>
-        <input
-          className={css.serverInput}
-          type="url"
-          value={url}
-          onChange={e => setUrl(e.target.value)}
-          placeholder={DEFAULT_COMPILE_SERVER}
-          spellCheck={false}
-        />
-        <button className={css.serverSaveBtn} onClick={save} disabled={status === 'saving'}>
-          {status === 'saving' ? 'Saving…' : status === 'ok' ? 'Saved' : 'Save'}
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 4 }}>
+          <input
+            className={`${css.serverInput} ${urlError ? css.serverInputError : ''}`}
+            type="url"
+            value={url}
+            onChange={e => { setUrl(e.target.value); validateUrl(e.target.value) }}
+            placeholder={DEFAULT_COMPILE_SERVER}
+            spellCheck={false}
+          />
+          {urlError && <span className={css.serverFieldError}>{urlError}</span>}
+        </div>
+        <button className={css.serverSaveBtn} onClick={save} disabled={status === 'saving' || !!urlError}>
+          {status === 'saving' ? 'Saving…' : status === 'ok' ? '✓ Saved' : 'Save'}
         </button>
       </div>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-        <button className={css.serverSaveBtn} style={{ background: 'var(--c-list-hover)', color: 'var(--c-list-title)' }} onClick={testConnection} disabled={ping === 'checking'}>
+      <div style={{ display: 'flex', alignItems: 'flex-start', flexDirection: 'column', gap: 6 }}>
+        <button
+          className={css.serverSaveBtn}
+          style={{ background: 'var(--c-list-hover)', color: 'var(--c-list-title)' }}
+          onClick={testConnection}
+          disabled={ping === 'checking' || !!urlError}
+        >
           {ping === 'checking' ? 'Testing…' : 'Test connection'}
         </button>
-        {ping === 'ok' && <span className={`${css.serverStatus} ${css.serverStatusOk}`}>Server reachable</span>}
-        {ping === 'error' && <span className={`${css.serverStatus} ${css.serverStatusError}`}>Could not reach server</span>}
+        {ping === 'ok' && <span className={`${css.serverStatus} ${css.serverStatusOk}`}>{pingMsg}</span>}
+        {ping === 'error' && <span className={`${css.serverStatus} ${css.serverStatusError}`}>{pingMsg}</span>}
       </div>
 
       <p style={{ fontSize: 'var(--text-xs)', marginTop: 8 }}>

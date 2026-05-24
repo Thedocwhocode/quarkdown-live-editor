@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react'
+import { ToastContainer } from '../ui/Toast'
+import { ErrorBoundary } from '../ui/ErrorBoundary'
 import { NoteEditor } from '../editor/NoteEditor'
 import { PreviewPane } from '../preview/PreviewPane'
 import { Toolbar } from '../toolbar/Toolbar'
@@ -77,19 +79,23 @@ export function AppShell() {
 
             <div className={css.workspace} data-view={viewMode}>
               {viewMode === 'structured' && (
-                selectedNote
-                  ? <StructuredEditorPane note={selectedNote} />
-                  : <Empty />
+                <ErrorBoundary area="structured editor">
+                  {selectedNote
+                    ? <StructuredEditorPane note={selectedNote} />
+                    : <Empty />}
+                </ErrorBoundary>
               )}
 
               {(viewMode === 'edit' || viewMode === 'split') && showEditor && (
                 <div className={css.editorPane}>
                   <div className={css.editorFlex}>
-                    {selectedNote ? (
-                      <NoteEditor note={selectedNote} />
-                    ) : (
-                      <Empty />
-                    )}
+                    <ErrorBoundary area="editor">
+                      {selectedNote ? (
+                        <NoteEditor note={selectedNote} />
+                      ) : (
+                        <Empty />
+                      )}
+                    </ErrorBoundary>
                     {attachOpen && selectedNote && (
                       <AttachmentPanel noteId={selectedNote.id} onClose={() => setAttachOpen(false)} />
                     )}
@@ -99,7 +105,9 @@ export function AppShell() {
 
               {(viewMode === 'preview' || viewMode === 'split') && (showPreview || viewMode === 'split') && (
                 <div className={css.previewPane}>
-                  <PreviewPane note={selectedNote} />
+                  <ErrorBoundary area="preview">
+                    <PreviewPane note={selectedNote} />
+                  </ErrorBoundary>
                 </div>
               )}
             </div>
@@ -129,6 +137,8 @@ export function AppShell() {
         open={settingsOpen}
         onClose={() => setSettingsOpen(false)}
       />
+
+      <ToastContainer />
     </div>
   )
 }

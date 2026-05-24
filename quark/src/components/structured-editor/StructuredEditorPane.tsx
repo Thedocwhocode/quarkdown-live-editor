@@ -26,6 +26,7 @@ export function StructuredEditorPane({ note }: Props) {
   const isCompiling = usePreviewStore((s) => s.isCompiling)
   const isStale = usePreviewStore((s) => s.isStale)
   const error = usePreviewStore((s) => s.error)
+  const diagnostics = usePreviewStore((s) => s.diagnostics)
 
   // Load the note into the editor whenever the selected note changes
   useEffect(() => {
@@ -68,7 +69,27 @@ export function StructuredEditorPane({ note }: Props) {
           {isCompiling && <span className={css.compiling}>Compiling…</span>}
           {isStale && !isCompiling && <span className={css.stale}>Unsaved changes</span>}
           {error && <span className={css.error} title={error}>Compile error</span>}
+          {diagnostics.length > 0 && !error && (
+            <span className={css.warnings} title={diagnostics.map(d => d.humanMessage).join('\n')}>
+              ⚠ {diagnostics.length} {diagnostics.length === 1 ? 'warning' : 'warnings'}
+            </span>
+          )}
         </div>
+        {error && (
+          <div className={css.errorPanel}>
+            <span className={css.errorPanelLabel}>Error</span>
+            <span className={css.errorPanelMsg}>{error}</span>
+          </div>
+        )}
+        {diagnostics.length > 0 && !error && (
+          <div className={css.diagPanel}>
+            {diagnostics.map((d, i) => (
+              <div key={i} className={`${css.diagItem} ${css[`diag_${d.severity}`]}`}>
+                {d.humanMessage}
+              </div>
+            ))}
+          </div>
+        )}
         <EditorSurface />
       </div>
     </div>

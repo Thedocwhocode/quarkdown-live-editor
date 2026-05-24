@@ -1,0 +1,40 @@
+.fallback {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  height: 100%;
+  padding: 32px;
+  text-align: center;
+}
+
+.title {
+  font-size: var(--text-md);
+  color: var(--c-error);
+  font-weight: 600;
+}
+
+.message {
+  font-family: var(--font-editor);
+  font-size: var(--text-xs);
+  color: var(--c-list-excerpt);
+  background: var(--c-list-bg);
+  border: 1px solid var(--c-list-border);
+  border-radius: var(--r-sm);
+  padding: 8px 12px;
+  max-width: 480px;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.retry {
+  font-size: var(--text-sm);
+  padding: 8px 20px;
+  background: var(--c-accent);
+  color: #fff;
+  border-radius: var(--r-md);
+  font-weight: 600;
+  cursor: pointer;
+}
+.retry:hover { background: var(--c-accent-hover); }

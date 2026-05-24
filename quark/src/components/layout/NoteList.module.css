@@ -37,6 +37,43 @@
   font-size: var(--text-sm);
 }
 
+.emptyState {
+  padding: var(--sp-8) var(--sp-4) var(--sp-6);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-2);
+}
+
+.emptyTitle {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--c-list-title);
+}
+
+.emptyHint {
+  font-size: var(--text-xs);
+  color: var(--c-list-excerpt);
+  line-height: 1.5;
+}
+
+.emptyCreateBtn {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  margin-top: var(--sp-2);
+  padding: 8px 16px;
+  background: var(--c-accent);
+  color: #fff;
+  border-radius: var(--r-lg);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.12s;
+}
+.emptyCreateBtn:hover { background: var(--c-accent-hover); }
+
 .card {
   width: 100%;
   display: flex;

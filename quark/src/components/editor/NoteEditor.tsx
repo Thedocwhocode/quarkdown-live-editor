@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { basicSetup } from 'codemirror'
 import { EditorState } from '@codemirror/state'
-import { EditorView } from '@codemirror/view'
+import { EditorView, keymap } from '@codemirror/view'
 import { markdown } from '@codemirror/lang-markdown'
 import type { Note } from '../../core/types'
 import { useNotesStore } from '../../features/notes/store'
@@ -21,6 +21,18 @@ interface SlashState {
 }
 
 const SAVE_DELAY = 600
+
+function applyFormatInView(view: EditorView, action: 'bold' | 'italic' | 'code') {
+  const { from, to } = view.state.selection.main
+  const selected = view.state.sliceDoc(from, to)
+  if (!selected) return
+  const wrap: Record<string, string> = { bold: '**', italic: '_', code: '`' }
+  const w = wrap[action]
+  view.dispatch({
+    changes: { from, to, insert: `${w}${selected}${w}` },
+    selection: { anchor: from + w.length + selected.length + w.length },
+  })
+}
 
 export function NoteEditor({ note }: Props) {
   const containerRef = useRef<HTMLDivElement>(null)
@@ -57,6 +69,20 @@ export function NoteEditor({ note }: Props) {
         extensions: [
           basicSetup,
           markdown(),
+          keymap.of([
+            {
+              key: 'Mod-b',
+              run: (view) => { applyFormatInView(view, 'bold'); return true },
+            },
+            {
+              key: 'Mod-i',
+              run: (view) => { applyFormatInView(view, 'italic'); return true },
+            },
+            {
+              key: 'Mod-k',
+              run: (view) => { applyFormatInView(view, 'code'); return true },
+            },
+          ]),
           EditorView.theme({
             '&':              { height: '100%', fontFamily: 'var(--font-editor)', fontSize: '15px' },
             '.cm-scroller':   { overflow: 'auto', lineHeight: '1.7' },

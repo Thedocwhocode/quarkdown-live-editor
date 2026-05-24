@@ -318,6 +318,16 @@
   border-color: var(--c-accent);
 }
 
+.serverInputError {
+  border-color: var(--c-error) !important;
+}
+
+.serverFieldError {
+  font-size: var(--text-xs);
+  color: var(--c-error);
+  line-height: 1.4;
+}
+
 .serverSaveBtn {
   padding: var(--sp-2) var(--sp-4);
   background: var(--c-accent);

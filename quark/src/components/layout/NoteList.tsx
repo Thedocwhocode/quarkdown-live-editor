@@ -1,4 +1,5 @@
 import { useRef } from 'react'
+import { PenLine } from 'lucide-react'
 import type { Note } from '../../core/types'
 import { useNotesStore } from '../../features/notes/store'
 import css from './NoteList.module.css'
@@ -7,6 +8,7 @@ export function NoteList() {
   const notes = useNotesStore(s => s.notes)
   const selectedNoteId = useNotesStore(s => s.selectedNoteId)
   const selectNote = useNotesStore(s => s.selectNote)
+  const createNote = useNotesStore(s => s.createNote)
   const search = useNotesStore(s => s.search)
   const searchQuery = useNotesStore(s => s.searchQuery)
   const setSearchQuery = useNotesStore(s => s.setSearchQuery)
@@ -16,6 +18,10 @@ export function NoteList() {
     setSearchQuery(q)
     clearTimeout(searchRef.current)
     searchRef.current = setTimeout(() => search(q), 300)
+  }
+
+  const handleCreateFirst = async () => {
+    await createNote('Untitled')
   }
 
   return (
@@ -31,8 +37,18 @@ export function NoteList() {
       </div>
 
       <div className={css.notes}>
-        {notes.length === 0 && (
-          <p className={css.empty}>No notes yet.</p>
+        {notes.length === 0 && searchQuery === '' && (
+          <div className={css.emptyState}>
+            <p className={css.emptyTitle}>No notes yet</p>
+            <p className={css.emptyHint}>Start writing in Quarkdown — plain notes, slides, papers, and more.</p>
+            <button className={css.emptyCreateBtn} onClick={handleCreateFirst}>
+              <PenLine size={14} strokeWidth={2} />
+              Create your first note
+            </button>
+          </div>
+        )}
+        {notes.length === 0 && searchQuery !== '' && (
+          <p className={css.empty}>No results for &ldquo;{searchQuery}&rdquo;</p>
         )}
         {notes.map(note => (
           <NoteCard
